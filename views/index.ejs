@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FloodSheild</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+     <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --success-color: #16a34a;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --info-color: #0ea5e9;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e6f3ff 100%);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        main {
+            flex: 1;
+            padding-top: 64px;
+            padding-bottom: 120px;
+        }
+
+        #map {
+            height: 50vh;
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+
+        #map:hover {
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .legend {
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(8px);
+        }
+        
+        .forecast-controls {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+        
+        .forecast-btn {
+            display: block;
+            margin: 8px 0;
+            padding: 10px 20px;
+            width: 100%;
+            cursor: pointer;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            color: #4b5563;
+        }
+
+        .forecast-btn:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .forecast-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--secondary-color);
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+        
+        .alert-severe {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-left: 4px solid var(--danger-color);
+            animation: fadeIn 0.5s ease-out;
+        }
+        .alert-high {
+            background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
+            border-left: 4px solid var(--warning-color);
+            animation: fadeIn 0.5s ease-out;
+        }
+        .alert-moderate {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid #d97706;
+            animation: fadeIn 0.5s ease-out;
+        }
+        .alert-low {
+            background: linear-gradient(135deg, #ecfccb 0%, #d9f99d 100%);
+            border-left: 4px solid var(--success-color);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .view-history-btn {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+
+        .view-history-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+        }
+
+        .user-info:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(8px);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .close {
+            color: #6b7280;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close:hover {
+            color: #1f2937;
+            transform: rotate(90deg);
+        }
+
+        .historical-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 24px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .historical-table th {
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+            color: white;
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
+        }
+
+        .historical-table td {
+            padding: 16px;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
+            transition: background-color 0.2s ease;
+        }
+
+        .historical-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .historical-table tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        .alert-cell {
+            font-weight: 600;
+            text-transform: capitalize;
+            padding: 6px 12px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        .alert-severe-cell {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: var(--danger-color);
+        }
+
+        .alert-high-cell {
+            background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
+            color: var(--warning-color);
+        }
+
+        .alert-moderate-cell {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #d97706;
+        }
+
+        .alert-low-cell {
+            background: linear-gradient(135deg, #ecfccb 0%, #d9f99d 100%);
+            color: var(--success-color);
+        }
+
+        .improvement-cell {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            color: #166534;
+            font-size: 0.9em;
+            line-height: 1.4;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+
+        /* Forecast Text Container */
+        #forecast-text {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+
+        #forecast-text:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Graph Modal Styles */
+        .graph-modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            overflow-y: auto;
+        }
+
+        .graph-modal .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            margin: 2% auto;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(8px);
+            animation: modalFadeIn 0.3s ease-out;
+            max-width: 90%;
+            width: 800px;
+        }
+
+        .graph-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .graph-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            background: #f3f4f6;
+            color: #4b5563;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .graph-btn:hover {
+            background: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
+        .graph-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .graph-container {
+            height: 400px;
+            width: 100%;
+            position: relative;
+            margin: 20px 0;
+        }
+
+        /* Chart.js Customization */
+        .chart-container {
+            position: relative;
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <%- include("partials/header.ejs") %>
+    
+    <main class="flex-1">
+        <!-- User info and logout button -->
+        <div class="container mx-auto px-4 py-2">
+            <div class="user-info flex justify-between items-center p-4 bg-white rounded-lg shadow-sm mb-4">
+                <div class="text-gray-600 font-medium">
+                    Welcome, <%= user.email %>
+                </div>
+                <% if (user.email !== 'Guest') { %>
+                    <a href="/logout" class="text-blue-600 hover:text-blue-800 transition-colors duration-200">Logout</a>
+                <% } else { %>
+                    <a href="/login" class="text-blue-600 hover:text-blue-800 transition-colors duration-200">Login</a>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="container mx-auto px-4 py-4">
+            <div id="map" class="rounded-lg shadow-lg"></div>
+        </div>
+
+        <!-- Forecast Text -->
+        <div id="forecast-text" class="container mx-auto px-4 py-4 bg-white rounded-lg shadow-sm mt-4"></div>
+        
+        <!-- Real-time Flood Risk Dashboard -->
+        <div class="container mx-auto px-4 py-4">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold mb-6">Real-time Flood Risk Analysis</h2>
+                
+                <!-- Risk Overview Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-blue-800 mb-2">River Level Risk</h3>
+                        <div class="text-2xl font-bold text-blue-600" id="level-risk">--</div>
+                        <div class="text-sm text-blue-600" id="level-risk-detail">Loading...</div>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-green-800 mb-2">Rainfall Risk</h3>
+                        <div class="text-2xl font-bold text-green-600" id="rainfall-risk">--</div>
+                        <div class="text-sm text-green-600" id="rainfall-risk-detail">Loading...</div>
+                    </div>
+                    <div class="bg-yellow-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-yellow-800 mb-2">Soil Moisture Risk</h3>
+                        <div class="text-2xl font-bold text-yellow-600" id="moisture-risk">--</div>
+                        <div class="text-sm text-yellow-600" id="moisture-risk-detail">Loading...</div>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-red-800 mb-2">Basin Capacity Risk</h3>
+                        <div class="text-2xl font-bold text-red-600" id="capacity-risk">--</div>
+                        <div class="text-sm text-red-600" id="capacity-risk-detail">Loading...</div>
+                    </div>
+                </div>
+
+                <!-- Overall Risk Assessment -->
+                <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                    <h3 class="text-xl font-bold mb-4">Overall Risk Assessment</h3>
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="text-3xl font-bold mb-2" id="overall-risk">--</div>
+                            <div class="text-gray-600" id="risk-description">Loading risk assessment...</div>
+                        </div>
+                        <div class="w-32 h-32" id="risk-gauge"></div>
+                    </div>
+                </div>
+
+                <!-- Recommendations -->
+                <div class="bg-white p-6 rounded-lg border border-gray-200 mb-6">
+                    <h3 class="text-xl font-bold mb-4">Recommendations</h3>
+                    <ul class="space-y-2" id="recommendations-list">
+                        <li class="text-gray-600">Loading recommendations...</li>
+                    </ul>
+                </div>
+
+                <!-- Evacuation Zones (if applicable) -->
+                <div id="evacuation-zones" class="bg-white p-6 rounded-lg border border-gray-200 hidden">
+                    <h3 class="text-xl font-bold mb-4">Evacuation Zones</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="zones-container">
+                        <!-- Zones will be populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for Historical Data -->
+        <div id="historyModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2 class="text-xl font-bold mb-4">Monsoon Season Flood Data</h2>
+                <table class="historical-table">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Month</th>
+                            <th>Peak Discharge (m³/s)</th>
+                            <th>Alert Level</th>
+                            <th>Damage Assessment</th>
+                            <th>Government Actions</th>
+                            <th>Gaps in Response</th>
+                            <th>Suggested Improvements</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historicalDataBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Forecast Controls -->
+    <div class="forecast-controls">
+        <button id="current-btn" class="forecast-btn active">Current Status</button>
+        <button id="forecast24-btn" class="forecast-btn">24-Hour Forecast</button>
+        <button id="forecast7d-btn" class="forecast-btn">7-Day Forecast</button>
+    </div>
+
+    <!-- Emergency Contacts Section -->
+    <div class="container mx-auto px-4 py-4">
+        <div class="bg-red-600 text-white rounded-lg shadow-lg p-6 mb-8 animate-pulse">
+            <h2 class="text-2xl font-bold mb-4">Emergency Contacts</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-red-700 p-4 rounded-lg">
+                    <h3 class="font-bold text-lg mb-2">National Emergency Numbers</h3>
+                    <div class="space-y-2">
+                        <p class="flex items-center">
+                            <span class="font-semibold">NDRF:</span>
+                            <span class="ml-2">1078</span>
+                        </p>
+                        <p class="flex items-center">
+                            <span class="font-semibold">Emergency Services:</span>
+                            <span class="ml-2">112</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="bg-red-700 p-4 rounded-lg">
+                    <h3 class="font-bold text-lg mb-2">Flood-Specific Helplines</h3>
+                    <div class="space-y-2">
+                        <p class="flex items-center">
+                            <span class="font-semibold">Flood Control Room:</span>
+                            <span class="ml-2">1800-180-1551</span>
+                        </p>
+                        <p class="flex items-center">
+                            <span class="font-semibold">State Disaster Management:</span>
+                            <span class="ml-2">1800-180-1551</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </main>
+
+    <%- include("partials/footer.ejs") %>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([22.5, 79], 5);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        function getColor(alert) {
+            if (alert === "severe") {
+                return '#8B0000'; 
+            } else if (alert === "high") {
+                return '#FF4500';
+            } else if (alert === "moderate") {
+                return '#FFA500';
+            } else {
+                return '#32CD32'; 
+            }
+        }
+        
+        var legend = L.control({position: 'bottomright'});
+        legend.onAdd = function(map) {
+            var div = L.DomUtil.create('div', 'legend');
+            var grades = ["severe", "high", "moderate", "low"];
+            var labels = ["Severe Risk", "High Risk", "Moderate Risk", "Low Risk"];
+            
+            div.innerHTML = '<b>Flood Risk Legend</b><br>';
+            
+            for (var i = 0; i < grades.length; i++) {
+                div.innerHTML +=
+                    '<i style="background:' + getColor(grades[i]) + '"></i> ' +
+                    labels[i] + '<br>';
+            }
+            
+            return div;
+        };
+        legend.addTo(map);
+        
+        var riverBasins = [
+            { 
+                id: 1, 
+                name: "Ganga Basin", 
+                cities: ["Haridwar", "Kanpur", "Varanasi", "Patna"], 
+                coords: [25.3, 83],
+                dangerLevel: 15000,
+                currentLevel: 12105
+            },
+            { 
+                id: 2, 
+                name: "Brahmaputra Basin", 
+                cities: ["Dibrugarh", "Guwahati", "Dhubri"], 
+                coords: [26.8, 92.2],
+                dangerLevel: 20000,
+                currentLevel: 14200,
+                forecast24h: 15000,
+                forecast7d: 18900
+            },
+            { 
+                id: 3, 
+                name: "Yamuna Basin", 
+                cities: ["Delhi", "Agra", "Mathura"], 
+                coords: [27.5, 77.7],
+                dangerLevel: 5000,
+                currentLevel: 2950
+            },
+            { 
+                id: 4, 
+                name: "Godavari Basin", 
+                cities: ["Nashik", "Rajahmundry"], 
+                coords: [19.9, 73.8],
+                dangerLevel: 6000,
+                currentLevel: 4339
+            }
+        ];
+    
+        var currentLayer = L.layerGroup().addTo(map);
+        var forecast24Layer = L.layerGroup();
+        var forecast7dLayer = L.layerGroup();
+        
+        function generateForecast(basinId, forecastType) {
+            var basin;
+            for (var i = 0; i < riverBasins.length; i++) {
+                if (riverBasins[i].id === basinId) {
+                    basin = riverBasins[i];
+                    break;
+                }
+            }
+            
+            // Set base discharge values from actual current levels
+            var baseDischarge = basin.currentLevel;
+            
+            if (forecastType === 'current') {
+                return {
+                    discharge: baseDischarge,
+                    trend: "stable",
+                    alert: "moderate",
+                    type: 'current'
+                };
+            }
+            else if (forecastType === '24h') {
+                var forecast = [];
+                var currentDischarge = baseDischarge;
+                
+                // For Brahmaputra, use exact values
+                if (basin.name === "Brahmaputra Basin") {
+                    forecast = [
+                        { time: "Now", discharge: 14200 },
+                        { time: "+6h", discharge: 14400 },
+                        { time: "+12h", discharge: 14600 },
+                        { time: "+18h", discharge: 14800 },
+                        { time: "+24h", discharge: 15000 }
+                    ];
+                    currentDischarge = 15000;
+                } else {
+                    // For other rivers, calculate forecast
+                for (var i = 0; i <= 24; i += 6) {
+                    if (i === 0) {
+                        forecast.push({
+                            time: "Now",
+                            discharge: Math.round(currentDischarge)
+                        });
+                    } else {
+                            currentDischarge = currentDischarge * 1.03;
+                        forecast.push({
+                            time: "+" + i + "h",
+                            discharge: Math.round(currentDischarge)
+                        });
+                    }
+                }
+                }
+                
+                return {
+                    discharge: Math.round(currentDischarge),
+                    trend: "rising",
+                    alert: "high",
+                    forecast: forecast,
+                    type: '24h'
+                };
+            }
+            else {
+                var forecast = [];
+                var currentDischarge = baseDischarge;
+                
+                // For Brahmaputra, use exact values
+                if (basin.name === "Brahmaputra Basin") {
+                    forecast = [
+                        { day: "Today", discharge: 14200 },
+                        { day: "Day 1", discharge: 15000 },
+                        { day: "Day 2", discharge: 15500 },
+                        { day: "Day 3", discharge: 16000 },
+                        { day: "Day 4", discharge: 16500 },
+                        { day: "Day 5", discharge: 17000 },
+                        { day: "Day 6", discharge: 18000 },
+                        { day: "Day 7", discharge: 18900 }
+                    ];
+                    currentDischarge = 18900;
+                } else {
+                    // For other rivers, calculate forecast
+                for (var i = 0; i <= 7; i++) {
+                    if (i === 0) {
+                        forecast.push({
+                            day: "Today",
+                            discharge: Math.round(currentDischarge)
+                        });
+                    } else {
+                            currentDischarge = currentDischarge * 1.05;
+                        forecast.push({
+                            day: "Day " + i,
+                            discharge: Math.round(currentDischarge)
+                        });
+                    }
+                }
+                }
+                
+                return {
+                    discharge: Math.round(currentDischarge),
+                    trend: "rising",
+                    alert: "severe",
+                    forecast: forecast,
+                    type: '7d'
+                };
+            }
+        }
+
+        function updateForecast(type) {
+            currentLayer.clearLayers();
+            forecast24Layer.clearLayers();
+            forecast7dLayer.clearLayers();
+            
+            var title;
+            if (type === 'current') {
+                title = 'Current Flood Status';
+            } else if (type === '24h') {
+                title = '24-Hour Flood Forecast';
+            } else {
+                title = '7-Day Flood Forecast';
+            }
+            
+            var textForecast = '<h2 class="text-xl font-bold mb-4">' + title + '</h2>';
+            
+            for (var i = 0; i < riverBasins.length; i++) {
+                var basin = riverBasins[i];
+                var data = generateForecast(basin.id, type);
+                
+                var layer;
+                if (type === 'current') {
+                    layer = currentLayer;
+                } else if (type === '24h') {
+                    layer = forecast24Layer;
+                } else {
+                    layer = forecast7dLayer;
+                }
+                
+                var circle = L.circleMarker(basin.coords, {
+                    radius: 8 + (data.discharge / 5000),
+                    fillColor: getColor(data.alert),
+                    color: "#000",
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                });
+                
+                var popupContent = '<b>' + basin.name + '</b><br>' +
+                                   '<b>Cities:</b> ' + basin.cities.join(', ') + '<br>' +
+                                   '<b>Status:</b> ' + data.alert.toUpperCase() + '<br>' +
+                                   '<b>Level:</b> ' + data.discharge.toLocaleString() + ' m³/s<br>' +
+                                   '<b>Danger Level:</b> ' + basin.dangerLevel.toLocaleString() + ' m³/s';
+                
+                circle.bindPopup(popupContent).addTo(layer);
+                
+                var alertClass;
+                if (data.alert === "severe") {
+                    alertClass = "alert-severe";
+                } else if (data.alert === "high") {
+                    alertClass = "alert-high";
+                } else if (data.alert === "moderate") {
+                    alertClass = "alert-moderate";
+                } else {
+                    alertClass = "alert-low";
+                }
+                
+                textForecast += '<div class="mb-4 p-4 rounded ' + alertClass + '">' +
+                                '<h3 class="font-bold text-lg">' + basin.name + ' Basin</h3>' +
+                                '<p class="mb-1"><b>Affected Cities:</b> ' + basin.cities.join(', ') + '</p>' +
+                                '<p class="mb-1"><b>Current Level:</b> ' + data.discharge.toLocaleString() + ' m³/s</p>' +
+                                '<p class="mb-1"><b>Danger Level:</b> ' + basin.dangerLevel.toLocaleString() + ' m³/s</p>' +
+                                '<p class="mb-1"><b>Status:</b> <span class="font-semibold capitalize">' + data.alert + ' risk</span></p>' +
+                                '<p class="mb-1"><b>Trend:</b> ' + data.trend + '</p>' +
+                                '<div class="flex gap-2">' +
+                                    '<button onclick="showHistoricalData(' + basin.id + ')" class="view-history-btn">View Past Year Data</button>' +
+                                    '<button onclick="showDischargeGraph(' + basin.id + ')" class="view-history-btn">View Discharge Graph</button>' +
+                                '</div>';
+                
+                if (type !== 'current') {
+                    textForecast += '<div class="mt-2"><b>Forecast:</b><ul class="list-disc pl-5">';
+                    
+                    for (var j = 1; j < data.forecast.length; j++) {
+                        var item = data.forecast[j];
+                        textForecast += '<li>' + (item.time || item.day) + ': ' + item.discharge.toLocaleString() + ' m³/s</li>';
+                    }
+                    
+                    textForecast += '</ul></div>';
+                }
+                
+                textForecast += '</div>';
+            }
+            
+            document.getElementById('forecast-text').innerHTML = textForecast;
+            
+            if (type === 'current') {
+                currentLayer.addTo(map);
+            } else if (type === '24h') {
+                forecast24Layer.addTo(map);
+            } else {
+                forecast7dLayer.addTo(map);
+            }
+        }
+
+        function setActiveButton(activeId) {
+            var buttons = document.querySelectorAll('.forecast-btn');
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].classList.remove('active');
+            }
+            document.getElementById(activeId).classList.add('active');
+        }
+
+        document.getElementById('current-btn').addEventListener('click', function() {
+            updateForecast('current');
+            setActiveButton('current-btn');
+        });
+
+        document.getElementById('forecast24-btn').addEventListener('click', function() {
+            updateForecast('24h');
+            setActiveButton('forecast24-btn');
+        });
+
+        document.getElementById('forecast7d-btn').addEventListener('click', function() {
+            updateForecast('7d');
+            setActiveButton('forecast7d-btn');
+        });
+
+        updateForecast('current');
+        setActiveButton('current-btn');
+
+        var modal = document.getElementById("historyModal");
+        var closeBtn = document.getElementsByClassName("close")[0];
+
+        closeBtn.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        const realFloodData2023 = {
+            "Ganga Basin": {
+                "June": {
+                    discharge: 75000,
+                    alert: "moderate",
+                    damage: "Moderate: Several villages in Bihar affected, agricultural losses reported",
+                    action: "NDRF teams deployed in Bihar, relief camps set up",
+                    gap: "Delayed evacuation in some areas",
+                    improvement: "Implement community-based early warning systems"
+                },
+                "July": {
+                    discharge: 85000,
+                    alert: "high",
+                    damage: "Severe: Major flooding in Patna, infrastructure damage",
+                    action: "Army deployed for rescue operations, international aid requested",
+                    gap: "Insufficient relief material distribution",
+                    improvement: "Establish decentralized relief material storage centers"
+                },
+                "August": {
+                    discharge: 92000,
+                    alert: "severe",
+                    damage: "Critical: Massive displacement in Bihar and UP, major cities affected",
+                    action: "Special task force created, long-term rehabilitation plan initiated",
+                    gap: "Poor coordination between state and central agencies",
+                    improvement: "Create unified command center with state and central representatives"
+                },
+                "September": {
+                    discharge: 78000,
+                    alert: "moderate",
+                    damage: "Moderate: Continued impact on agriculture, some villages still affected",
+                    action: "Agricultural relief package announced, crop insurance claims processed",
+                    gap: "Delayed compensation distribution",
+                    improvement: "Implement blockchain-based compensation tracking system"
+                },
+                "October": {
+                    discharge: 65000,
+                    alert: "low",
+                    damage: "Minor: Localized flooding, minimal property damage",
+                    action: "Post-flood assessment and rehabilitation work initiated",
+                    gap: "Lack of pre-monsoon preparedness measures",
+                    improvement: "Conduct pre-monsoon preparedness drills and infrastructure audits"
+                }
+            },
+            "Brahmaputra Basin": {
+                "June": {
+                    discharge: 95000,
+                    alert: "high",
+                    damage: "Severe: Widespread flooding in Assam, significant infrastructure damage",
+                    action: "NDRF teams deployed, emergency funds released",
+                    gap: "Delayed early warning system activation",
+                    improvement: "Implement AI-powered early warning systems with real-time monitoring"
+                },
+                "July": {
+                    discharge: 105000,
+                    alert: "severe",
+                    damage: "Critical: Major cities in Assam affected, massive displacement",
+                    action: "Army deployed, international aid requested",
+                    gap: "Insufficient relief material distribution",
+                    improvement: "Establish decentralized relief material storage and distribution centers"
+                },
+                "August": {
+                    discharge: 98000,
+                    alert: "high",
+                    damage: "Severe: Continued impact on infrastructure and agriculture",
+                    action: "Special task force created for rehabilitation",
+                    gap: "Poor coordination between agencies",
+                    improvement: "Create unified command center with all stakeholders"
+                },
+                "September": {
+                    discharge: 82000,
+                    alert: "moderate",
+                    damage: "Moderate: Several villages affected, agricultural losses",
+                    action: "Agricultural relief package announced",
+                    gap: "Delayed compensation distribution",
+                    improvement: "Implement digital compensation tracking system"
+                },
+                "October": {
+                    discharge: 70000,
+                    alert: "low",
+                    damage: "Minor: Localized flooding, minimal property damage",
+                    action: "Post-flood assessment initiated",
+                    gap: "Lack of pre-monsoon preparedness",
+                    improvement: "Conduct pre-monsoon preparedness drills"
+                }
+            },
+            "Yamuna Basin": {
+                "June": {
+                    discharge: 45000,
+                    alert: "moderate",
+                    damage: "Moderate: Several villages affected, agricultural losses",
+                    action: "NDRF teams deployed, relief camps set up",
+                    gap: "Delayed early warning system activation",
+                    improvement: "Implement AI-powered early warning systems"
+                },
+                "July": {
+                    discharge: 52000,
+                    alert: "high",
+                    damage: "Severe: Widespread flooding in Delhi, significant infrastructure damage",
+                    action: "Army deployed for rescue operations",
+                    gap: "Insufficient relief material distribution",
+                    improvement: "Establish decentralized relief material storage"
+                },
+                "August": {
+                    discharge: 48000,
+                    alert: "moderate",
+                    damage: "Moderate: Continued impact on agriculture",
+                    action: "Agricultural relief package announced",
+                    gap: "Poor coordination between agencies",
+                    improvement: "Create unified command center"
+                },
+                "September": {
+                    discharge: 42000,
+                    alert: "low",
+                    damage: "Minor: Localized flooding, minimal property damage",
+                    action: "Post-flood assessment initiated",
+                    gap: "Delayed compensation distribution",
+                    improvement: "Implement digital compensation tracking"
+                },
+                "October": {
+                    discharge: 38000,
+                    alert: "low",
+                    damage: "Minor: Localized flooding, minimal impact",
+                    action: "Rehabilitation work ongoing",
+                    gap: "Lack of pre-monsoon preparedness",
+                    improvement: "Conduct pre-monsoon preparedness drills"
+                }
+            },
+            "Godavari Basin": {
+                "June": {
+                    discharge: 55000,
+                    alert: "moderate",
+                    damage: "Moderate: Several villages affected, agricultural losses",
+                    action: "NDRF teams deployed, relief camps set up",
+                    gap: "Delayed early warning system activation",
+                    improvement: "Implement AI-powered early warning systems"
+                },
+                "July": {
+                    discharge: 62000,
+                    alert: "high",
+                    damage: "Severe: Widespread flooding, significant infrastructure damage",
+                    action: "Army deployed for rescue operations",
+                    gap: "Insufficient relief material distribution",
+                    improvement: "Establish decentralized relief material storage"
+                },
+                "August": {
+                    discharge: 58000,
+                    alert: "moderate",
+                    damage: "Moderate: Continued impact on agriculture",
+                    action: "Agricultural relief package announced",
+                    gap: "Poor coordination between agencies",
+                    improvement: "Create unified command center"
+                },
+                "September": {
+                    discharge: 52000,
+                    alert: "low",
+                    damage: "Minor: Localized flooding, minimal property damage",
+                    action: "Post-flood assessment initiated",
+                    gap: "Delayed compensation distribution",
+                    improvement: "Implement digital compensation tracking"
+                },
+                "October": {
+                    discharge: 48000,
+                    alert: "low",
+                    damage: "Minor: Localized flooding, minimal impact",
+                    action: "Rehabilitation work ongoing",
+                    gap: "Lack of pre-monsoon preparedness",
+                    improvement: "Conduct pre-monsoon preparedness drills"
+                }
+            }
+        };
+
+        function generateHistoricalData(basinId) {
+            var basin = riverBasins.find(b => b.id === basinId);
+            var historicalData = [];
+            var months = ["June", "July", "August", "September", "October"];
+            
+            var basinData = realFloodData2023[basin.name];
+            
+            months.forEach(month => {
+                if (basinData && basinData[month]) {
+                    var data = basinData[month];
+                    historicalData.push({
+                        year: 2023,
+                        month: month,
+                        discharge: data.discharge,
+                        alert: data.alert,
+                        damage: data.damage,
+                        action: data.action,
+                        gap: data.gap,
+                        improvement: data.improvement
+                    });
+                }
+            });
+            
+            return historicalData;
+        }
+
+        function showHistoricalData(basinId) {
+            var historicalData = generateHistoricalData(basinId);
+            var tbody = document.getElementById("historicalDataBody");
+            tbody.innerHTML = "";
+            
+            historicalData.forEach(data => {
+                var row = tbody.insertRow();
+                row.insertCell(0).textContent = data.year;
+                row.insertCell(1).textContent = data.month;
+                row.insertCell(2).textContent = data.discharge.toLocaleString();
+                
+                var alertCell = row.insertCell(3);
+                alertCell.textContent = data.alert.charAt(0).toUpperCase() + data.alert.slice(1);
+                alertCell.className = "alert-cell alert-" + data.alert + "-cell";
+                
+                row.insertCell(4).textContent = data.damage;
+                row.insertCell(5).textContent = data.action;
+                row.insertCell(6).textContent = data.gap;
+                
+                var improvementCell = row.insertCell(7);
+                improvementCell.textContent = data.improvement;
+                improvementCell.className = "improvement-cell";
+            });
+            
+            modal.style.display = "block";
+        }
+
+        function showDischargeGraph(basinId) {
+            // Get the basin data
+            var basin = riverBasins.find(b => b.id === basinId);
+            if (!basin) return;
+            
+            // Create modal
+            var modal = document.createElement('div');
+            modal.id = 'graphModal';
+            modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;display:flex;justify-content:center;align-items:center;';
+            
+            // Create content
+            var content = document.createElement('div');
+            content.style.cssText = 'background:white;padding:20px;width:90%;max-width:1000px;height:60vh;border-radius:8px;display:flex;flex-direction:column;';
+            
+            // Add content
+            content.innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                    <h2 style="font-size:1.2rem;margin:0;">${basin.name} Discharge Graph</h2>
+                    <button onclick="document.getElementById('graphModal').remove()" style="border:none;background:none;font-size:24px;cursor:pointer;">×</button>
+                </div>
+                <div style="flex:1;position:relative;min-height:0;height:300px;">
+                    <canvas id="dischargeChart"></canvas>
+                </div>
+            `;
+            
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+            
+            // Generate data points for the graph
+            var data = [];
+            var labels = [];
+            
+            // For Brahmaputra, use exact values
+            if (basin.name === "Brahmaputra Basin") {
+                data = [14200, 14400, 14600, 14800, 15000, 15500, 16000, 16500, 17000, 18000, 18900];
+                labels = ['Current', '+6h', '+12h', '+18h', '+24h', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'];
+            } else {
+                // For other rivers, calculate forecast
+                var currentDischarge = basin.currentLevel;
+                
+                // Add current level
+                data.push(currentDischarge);
+                labels.push('Current');
+                
+                // Add 24-hour forecast (6-hour intervals)
+                for (var i = 6; i <= 24; i += 6) {
+                    currentDischarge = currentDischarge * 1.03;
+                    data.push(Math.round(currentDischarge));
+                    labels.push(`+${i}h`);
+                }
+                
+                // Add 7-day forecast (daily)
+                for (var i = 1; i <= 7; i++) {
+                    currentDischarge = currentDischarge * 1.05;
+                    data.push(Math.round(currentDischarge));
+                    labels.push(`Day ${i}`);
+                }
+            }
+            
+            // Create danger level line data
+            var dangerLevelData = new Array(labels.length).fill(basin.dangerLevel);
+            
+            // Create chart
+            var ctx = document.getElementById('dischargeChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'River Level (m³/s)',
+                        data: data,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                        },
+                        {
+                            label: 'Danger Level',
+                            data: dangerLevelData,
+                            borderColor: 'rgb(255, 0, 0)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 0,
+                            tension: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.dataset.label === 'Danger Level') {
+                                        return `Danger Level: ${context.raw.toLocaleString()} m³/s`;
+                                    }
+                                    return `Discharge: ${context.raw.toLocaleString()} m³/s`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Discharge (m³/s)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.dischargeChart) {
+                    window.dischargeChart.resize();
+                }
+            });
+        }
+
+        function updateForecastText(basin, forecast) {
+            var text = `<div class="p-4 ${getAlertClass(forecast.alert)}">
+                <h2 class="text-xl font-bold mb-2">${basin.name}</h2>
+                <p class="mb-2">Current Discharge: ${forecast.discharge.toLocaleString()} m³/s</p>
+                <p class="mb-2">Trend: ${forecast.trend}</p>
+                <p class="mb-2">Alert Level: ${forecast.alert.charAt(0).toUpperCase() + forecast.alert.slice(1)}</p>
+                <div class="flex gap-2">
+                    <button onclick="showHistoricalData(${basin.id})" class="view-history-btn">View Past Year Data</button>
+                    <button onclick="showDischargeGraph(${basin.id})" class="view-history-btn">View Discharge Graph</button>
+                </div>
+            </div>`;
+            document.getElementById('forecast-text').innerHTML = text;
+        }
+
+        // Add this at the start of your script
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, Chart.js version:', Chart.version);
+        });
+
+        // Verify Chart.js is loaded
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js not loaded!');
+        } else {
+            console.log('Chart.js loaded successfully, version:', Chart.version);
+        }
+
+        // Add this after your existing JavaScript code
+        function updateRiskDashboard(basinId) {
+            const basin = riverBasins.find(b => b.id === basinId);
+            if (!basin) return;
+
+            // Calculate risk factors
+            const levelRisk = calculateLevelRisk(basin.currentLevel, basin.dangerLevel);
+            const rainfallRisk = calculateRainfallRisk(basin.rainfall);
+            const moistureRisk = calculateMoistureRisk(basin.soilMoisture);
+            const capacityRisk = calculateCapacityRisk(basin.basinCapacity);
+
+            // Update risk cards
+            document.getElementById('level-risk').textContent = `${levelRisk}%`;
+            document.getElementById('level-risk-detail').textContent = `Current: ${basin.currentLevel.toLocaleString()} m³/s`;
+
+            document.getElementById('rainfall-risk').textContent = `${rainfallRisk}%`;
+            document.getElementById('rainfall-risk-detail').textContent = `Current: ${basin.rainfall.current}mm`;
+
+            document.getElementById('moisture-risk').textContent = `${moistureRisk}%`;
+            document.getElementById('moisture-risk-detail').textContent = `Current: ${basin.soilMoisture.current}%`;
+
+            document.getElementById('capacity-risk').textContent = `${capacityRisk}%`;
+            document.getElementById('capacity-risk-detail').textContent = `Current: ${basin.basinCapacity.current}%`;
+
+            // Calculate overall risk
+            const overallRisk = Math.round(
+                (levelRisk * 0.4) +
+                (rainfallRisk * 0.2) +
+                (moistureRisk * 0.2) +
+                (capacityRisk * 0.2)
+            );
+
+            // Update overall risk display
+            document.getElementById('overall-risk').textContent = `${overallRisk}%`;
+            
+            // Determine risk level and description
+            let riskLevel, riskDescription;
+            if (overallRisk >= 80) {
+                riskLevel = 'SEVERE';
+                riskDescription = 'Immediate action required. High probability of flooding.';
+            } else if (overallRisk >= 60) {
+                riskLevel = 'HIGH';
+                riskDescription = 'Prepare for possible flooding. Monitor conditions closely.';
+            } else if (overallRisk >= 40) {
+                riskLevel = 'MODERATE';
+                riskDescription = 'Stay alert. Conditions may change rapidly.';
+            } else {
+                riskLevel = 'LOW';
+                riskDescription = 'Normal conditions. Continue monitoring.';
+            }
+            
+            document.getElementById('risk-description').textContent = `${riskLevel} - ${riskDescription}`;
+
+            // Update recommendations
+            const recommendations = generateRecommendations(riskLevel, {
+                levelRisk,
+                rainfallRisk,
+                moistureRisk,
+                capacityRisk
+            }, basin);
+
+            const recommendationsList = document.getElementById('recommendations-list');
+            recommendationsList.innerHTML = recommendations.map(rec => 
+                `<li class="flex items-start">
+                    <svg class="w-5 h-5 text-blue-500 mr-2 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>${rec}</span>
+                </li>`
+            ).join('');
+
+            // Update evacuation zones if applicable
+            const evacuationZones = document.getElementById('evacuation-zones');
+            const zonesContainer = document.getElementById('zones-container');
+            
+            if (riskLevel === 'SEVERE' || riskLevel === 'HIGH') {
+                evacuationZones.classList.remove('hidden');
+                const zones = generateEvacuationZones(basin);
+                zonesContainer.innerHTML = zones.map(zone => `
+                    <div class="bg-${getZoneColor(zone.level)}-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-${getZoneColor(zone.level)}-800 mb-2">Zone ${zone.level}</h4>
+                        <p class="text-${getZoneColor(zone.level)}-600 mb-2">${zone.description}</p>
+                        <ul class="text-sm text-${getZoneColor(zone.level)}-600">
+                            ${zone.areas.map(area => `<li>• ${area}</li>`).join('')}
+                        </ul>
+                    </div>
+                `).join('');
+            } else {
+                evacuationZones.classList.add('hidden');
+            }
+        }
+
+        function getZoneColor(level) {
+            switch(level) {
+                case 1: return 'red';
+                case 2: return 'orange';
+                case 3: return 'yellow';
+                default: return 'gray';
+            }
+        }
+
+        // Update the existing updateForecast function to include risk dashboard update
+        const originalUpdateForecast = updateForecast;
+        updateForecast = function(type) {
+            originalUpdateForecast(type);
+            // Update risk dashboard for each basin
+            riverBasins.forEach(basin => {
+                updateRiskDashboard(basin.id);
+            });
+        };
+
+        // Initialize risk dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            updateRiskDashboard(1); // Start with Ganga basin
+        });
+    </script>
+</body>
+</html>

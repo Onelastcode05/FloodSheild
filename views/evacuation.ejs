@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FloodShield - Evacuation Routes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+            border-radius: 12px;
+        }
+        
+        .location-input {
+            transition: all 0.3s ease;
+        }
+        
+        .location-input:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .route-card {
+            transition: all 0.3s ease;
+        }
+
+        .route-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .shelter-icon {
+            background-color: #2563eb;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .hospital-icon {
+            background-color: #dc2626;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <%- include("partials/header.ejs") %>
+    
+    <main class="container mx-auto px-4 py-8">
+        <!-- Location Input Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4">Enter Your Location for Evacuation Routes</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">State</label>
+                    <input type="text" 
+                           id="stateInput" 
+                           placeholder="Enter your state" 
+                           class="location-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
+                    <input type="text" 
+                           id="cityInput" 
+                           placeholder="Enter your city" 
+                           class="location-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Area/Locality</label>
+                    <input type="text" 
+                           id="areaInput" 
+                           placeholder="Enter your area" 
+                           class="location-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                </div>
+            </div>
+            <div class="mt-4">
+                <button onclick="findEvacuationRoutes()" 
+                        class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                    Find Nearby Locations
+        </button>
+    </div>
+        </div>
+
+        <!-- Map and Routes Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <!-- Map -->
+            <div class="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold mb-4">Evacuation Map</h2>
+                <div id="map"></div>
+    </div>
+
+            <!-- Routes List -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold mb-4">Evacuation Routes</h2>
+                <div id="routesList" class="space-y-4">
+                    <p class="text-gray-600">Enter your location to see evacuation routes</p>
+                </div>
+        </div>
+        </div>
+
+        <!-- Shelters and Hospitals Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Shelters -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold mb-4">Nearby Shelters</h2>
+                <div id="sheltersList" class="space-y-4">
+                    <p class="text-gray-600">Enter your location to see nearby shelters</p>
+        </div>
+        </div>
+
+            <!-- Hospitals -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold mb-4">Nearby Hospitals</h2>
+                <div id="hospitalsList" class="space-y-4">
+                    <p class="text-gray-600">Enter your location to see nearby hospitals</p>
+        </div>
+        </div>
+        </div>
+    </main>
+
+    <%- include("partials/footer.ejs") %>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Initialize map
+        var map = L.map('map').setView([20.5937, 78.9629], 5);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+        // Sample data for cities
+        const locationData = {
+            "bihar": {
+                "patna": {
+                    "gandhi maidan": {
+                        coords: [25.5941, 85.1376],
+                        shelters: [
+                            { name: "Gandhi Maidan Relief Camp", coords: [25.6041, 85.1476], distance: "1.2 km" },
+                            { name: "Patna Junction Relief Camp", coords: [25.5841, 85.1276],  distance: "2.1 km" }
+                        ],
+                        hospitals: [
+                            { name: "PMCH Patna", coords: [25.6141, 85.1576],  distance: "2.5 km", emergency: true },
+                            { name: "NMCH Patna", coords: [25.5741, 85.1176],  distance: "3.8 km", emergency: true }
+                        ],
+                        routes: [
+                            { name: "Primary Route", path: [[25.5941, 85.1376], [25.6041, 85.1476]], distance: "1.2 km", status: "clear" },
+                            { name: "Alternative Route", path: [[25.5941, 85.1376], [25.5841, 85.1276]], distance: "2.1 km", status: "clear" }
+                        ]
+                    },
+                    "kankarbagh": {
+                        coords: [25.6041, 85.1476],
+                        shelters: [
+                            { name: "Kankarbagh Relief Camp", coords: [25.6141, 85.1576], capacity: 300, distance: "0.8 km" },
+                            { name: "Rajendra Nagar Relief Camp", coords: [25.5941, 85.1376], capacity: 250, distance: "1.5 km" }
+                        ],
+                        hospitals: [
+                            { name: "Kankarbagh Hospital", coords: [25.6241, 85.1676], distance: "1.0 km", emergency: true },
+                            { name: "Rajendra Nagar Medical Center", coords: [25.5841, 85.1276],  distance: "2.0 km", emergency: false }
+                        ],
+                        routes: [
+                            { name: "Primary Route", path: [[25.6041, 85.1476], [25.6141, 85.1576]], distance: "0.8 km", status: "clear" },
+                            { name: "Alternative Route", path: [[25.6041, 85.1476], [25.5941, 85.1376]], distance: "1.5 km", status: "clear" }
+                        ]
+                    }
+                }
+            },
+            "delhi": {
+                "new delhi": {
+                    "connaught place": {
+                        coords: [28.6139, 77.2090],
+                        shelters: [
+                            { name: "CP Relief Camp", coords: [28.6239, 77.2190], capacity: 500, distance: "0.5 km" },
+                            { name: "Rajiv Chowk Relief Camp", coords: [28.6039, 77.1990], capacity: 300, distance: "1.0 km" }
+                        ],
+                        hospitals: [
+                            { name: "AIIMS Delhi", coords: [28.6339, 77.2290], beds: 200, distance: "2.0 km", emergency: true },
+                            { name: "Safdarjung Hospital", coords: [28.5939, 77.1890], beds: 150, distance: "3.0 km", emergency: true }
+                        ],
+                        routes: [
+                            { name: "Primary Route", path: [[28.6139, 77.2090], [28.6239, 77.2190]], distance: "0.5 km", status: "clear" },
+                            { name: "Alternative Route", path: [[28.6139, 77.2090], [28.6039, 77.1990]], distance: "1.0 km", status: "clear" }
+                        ]
+                    }
+                }
+            }
+        };
+
+        function findEvacuationRoutes() {
+            const state = document.getElementById('stateInput').value.trim().toLowerCase();
+            const city = document.getElementById('cityInput').value.trim().toLowerCase();
+            const area = document.getElementById('areaInput').value.trim().toLowerCase();
+
+            if (!state || !city || !area) {
+                alert('Please enter state, city, and area');
+                return;
+            }
+
+            const locationInfo = locationData[state]?.[city]?.[area];
+            if (!locationInfo) {
+                alert('Location not found. Please check your input and try again.');
+                return;
+            }
+
+            // Clear previous markers and routes
+            map.eachLayer((layer) => {
+                if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+                    map.removeLayer(layer);
+                }
+            });
+
+            // Center map on location
+            map.setView(locationInfo.coords, 14);
+            
+            // Add user location marker
+            L.marker(locationInfo.coords).addTo(map)
+                .bindPopup(`Your Location: ${area}, ${city}, ${state}`)
+                .openPopup();
+
+            // Add shelters
+            locationInfo.shelters.forEach(shelter => {
+                L.marker(shelter.coords, {
+                    icon: L.divIcon({
+                        className: 'shelter-icon',
+                        html: '🏠',
+                        iconSize: [20, 20]
+                    })
+                }).addTo(map).bindPopup(`
+                    <b>${shelter.name}</b><br>
+                    Capacity: ${shelter.capacity} people<br>
+                    Distance: ${shelter.distance}
+                `);
+            });
+
+            // Add hospitals
+            locationInfo.hospitals.forEach(hospital => {
+                L.marker(hospital.coords, {
+                    icon: L.divIcon({
+                        className: 'hospital-icon',
+                        html: '🏥',
+                        iconSize: [20, 20]
+                    })
+                }).addTo(map).bindPopup(`
+                    <b>${hospital.name}</b><br>
+                    Available Beds: ${hospital.beds}<br>
+                    Distance: ${hospital.distance}<br>
+                    ${hospital.emergency ? '24/7 Emergency Services' : 'Regular Hours'}
+                `);
+            });
+                
+            // Add routes
+            locationInfo.routes.forEach(route => {
+                L.polyline(route.path, {
+                    color: route.status === 'clear' ? 'blue' : 'red',
+                    weight: 3,
+                    opacity: 0.7
+                }).addTo(map).bindPopup(`
+                    <b>${route.name}</b><br>
+                    Distance: ${route.distance}<br>
+                    Status: ${route.status}
+                `);
+            });
+                
+            // Update routes list
+            const routesList = document.getElementById('routesList');
+            routesList.innerHTML = locationInfo.routes.map(route => `
+                <div class="route-card p-4 bg-blue-50 rounded-lg">
+                    <h3 class="font-bold text-blue-700">${route.name}</h3>
+                    <p class="mt-2">Distance: ${route.distance}</p>
+                    <p class="mt-2">Status: <span class="font-semibold ${route.status === 'clear' ? 'text-green-600' : 'text-red-600'}">${route.status}</span></p>
+                    <p class="mt-2">Click on the map to see the route</p>
+                </div>
+            `).join('');
+            
+            // Update shelters list
+            const sheltersList = document.getElementById('sheltersList');
+            sheltersList.innerHTML = locationInfo.shelters.map(shelter => `
+                <div class="p-4 bg-green-50 rounded-lg">
+                    <h3 class="font-bold text-green-700">${shelter.name}</h3>
+                    <p class="mt-2">Capacity: ${shelter.capacity} people</p>
+                    <p class="mt-2">Distance: ${shelter.distance}</p>
+                </div>
+            `).join('');
+
+            // Update hospitals list
+            const hospitalsList = document.getElementById('hospitalsList');
+            hospitalsList.innerHTML = locationInfo.hospitals.map(hospital => `
+                <div class="p-4 bg-red-50 rounded-lg">
+                    <h3 class="font-bold text-red-700">${hospital.name}</h3>
+                    <p class="mt-2">Available Beds: ${hospital.beds}</p>
+                    <p class="mt-2">Distance: ${hospital.distance}</p>
+                    <p class="mt-2">${hospital.emergency ? '24/7 Emergency Services Available' : 'Regular Hours Only'}</p>
+                </div>
+            `).join('');
+        }
+
+        // Add event listeners for Enter key
+        ['stateInput', 'cityInput', 'areaInput'].forEach(id => {
+            document.getElementById(id).addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    findEvacuationRoutes();
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

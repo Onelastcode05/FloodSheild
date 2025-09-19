@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FloodSheild - Volunteer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .volunteer-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .volunteer-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <%- include('partials/header') %>
+    
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-4xl font-bold text-gray-800 mb-8">Volunteer for Flood Relief</h1>
+
+            <!-- Login/Signup Tabs -->
+            <div class="form-container p-6 mb-8">
+                <div class="flex space-x-4 mb-6">
+                    <button class="tab-button px-4 py-2 rounded-lg" onclick="showTab('login')">Login</button>
+                    <button class="tab-button px-4 py-2 rounded-lg" onclick="showTab('signup')">Sign Up</button>
+                </div>
+
+                <!-- Login Form -->
+                <div id="login" class="tab-content active">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Volunteer Login</h2>
+                    <form action="/volunteer/login" method="POST" class="space-y-4">
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="email">Email</label>
+                            <input type="email" id="email" name="email" required
+                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="password">Password</label>
+                            <input type="password" id="password" name="password" required
+                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <button type="submit"
+                            class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">
+                            Login
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Signup Form -->
+                <div id="signup" class="tab-content">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Become a Volunteer</h2>
+                    <form action="/volunteer/signup" method="POST" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-gray-700 mb-2" for="firstName">First Name</label>
+                                <input type="text" id="firstName" name="firstName" required
+                                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2" for="lastName">Last Name</label>
+                                <input type="text" id="lastName" name="lastName" required
+                                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="signupEmail">Email</label>
+                            <input type="email" id="signupEmail" name="email" required
+                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="signupPassword">Password</label>
+                            <input type="password" id="signupPassword" name="password" required
+                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" required
+                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2" for="location">Location</label>
+                            <input type="text" id="location" name="location" required
+                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <button type="submit"
+                            class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">
+                            Sign Up
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Volunteer Opportunities -->
+            <div id="volunteer-opportunities" class="<%= isLoggedIn ? '' : 'hidden' %>">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-6">Available Opportunities</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="volunteer-card p-6">
+                        <h3 class="text-xl font-semibold text-blue-600 mb-3">Emergency Response Team</h3>
+                        <p class="text-gray-600 mb-4">Join our emergency response team to help during flood situations.</p>
+                        <ul class="text-gray-600 space-y-2 mb-4">
+                            <li>• First aid training provided</li>
+                            <li>• Emergency response coordination</li>
+                            <li>• Rescue operations support</li>
+                        </ul>
+                        <button class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">
+                            Volunteer Now
+                        </button>
+                    </div>
+                    <div class="volunteer-card p-6">
+                        <h3 class="text-xl font-semibold text-blue-600 mb-3">Relief Distribution</h3>
+                        <p class="text-gray-600 mb-4">Help distribute essential supplies to affected communities.</p>
+                        <ul class="text-gray-600 space-y-2 mb-4">
+                            <li>• Food and water distribution</li>
+                            <li>• Medical supplies management</li>
+                            <li>• Shelter coordination</li>
+                        </ul>
+                        <button class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">
+                            Volunteer Now
+                        </button>
+                    </div>
+                    <div class="volunteer-card p-6">
+                        <h3 class="text-xl font-semibold text-blue-600 mb-3">Community Education</h3>
+                        <p class="text-gray-600 mb-4">Educate communities about flood preparedness and safety.</p>
+                        <ul class="text-gray-600 space-y-2 mb-4">
+                            <li>• Conduct workshops</li>
+                            <li>• Distribute educational materials</li>
+                            <li>• Community outreach</li>
+                        </ul>
+                        <button class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">
+                            Volunteer Now
+                        </button>
+                    </div>
+                    <div class="volunteer-card p-6">
+                        <h3 class="text-xl font-semibold text-blue-600 mb-3">Technical Support</h3>
+                        <p class="text-gray-600 mb-4">Provide technical assistance for flood monitoring and response.</p>
+                        <ul class="text-gray-600 space-y-2 mb-4">
+                            <li>• Data analysis</li>
+                            <li>• Equipment maintenance</li>
+                            <li>• Technical documentation</li>
+                        </ul>
+                        <button class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">
+                            Volunteer Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script>
+        function showTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Show selected tab content
+            document.getElementById(tabId).classList.add('active');
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Check if user is logged in and show appropriate content
+        document.addEventListener('DOMContentLoaded', function() {
+            const isLoggedIn = <%- JSON.stringify(isLoggedIn) %>;
+            
+            if (isLoggedIn) {
+                document.querySelector('.form-container').classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html> 

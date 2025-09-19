@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FloodSheild - Flood Education Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        .article-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+        }
+
+        .article-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+        }
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .resource-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e6f3ff 100%);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .resource-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        main {
+            padding-bottom: 120px; /* Add space for footer */
+        }
+
+        .lesson-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .lesson-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .interactive-element {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px dashed #0ea5e9;
+        }
+        .quiz-option {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .quiz-option:hover {
+            background-color: #f3f4f6;
+        }
+        .quiz-option.correct {
+            background-color: #dcfce7;
+            border-color: #16a34a;
+        }
+        .quiz-option.incorrect {
+            background-color: #fee2e2;
+            border-color: #dc2626;
+        }
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <%- include("partials/header.ejs") %>
+    
+    <main class="container mx-auto px-4 py-8">
+        <!-- Hero Section -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg p-8 mb-8">
+            <h1 class="text-4xl font-bold mb-4">Flood Education Center</h1>
+            <p class="text-xl opacity-90">Learn about floods, their causes, prevention, and how to stay safe</p>
+            <div class="mt-6 flex flex-wrap gap-4">
+                <span class="bg-blue-500 px-4 py-2 rounded-full text-sm">🌊 Science of Floods</span>
+                <span class="bg-blue-500 px-4 py-2 rounded-full text-sm">🛡️ Prevention & Safety</span>
+                <span class="bg-blue-500 px-4 py-2 rounded-full text-sm">📚 Interactive Learning</span>
+            </div>
+        </div>
+
+        <!-- Learning Progress Tracker -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4">Your Learning Progress</h2>
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium">Overall Progress</span>
+                <span class="text-sm font-medium" id="progress-text">0% Complete</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+                <div class="progress-bar bg-blue-600 h-3 rounded-full" style="width: 0%" id="progress-bar"></div>
+            </div>
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="text-center">
+                    <div class="text-2xl mb-2">📖</div>
+                    <div class="text-sm text-gray-600">Lessons Completed</div>
+                    <div class="font-bold text-blue-600" id="lessons-completed">0/8</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl mb-2">🧠</div>
+                    <div class="text-sm text-gray-600">Quiz Score</div>
+                    <div class="font-bold text-green-600" id="quiz-score">0%</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl mb-2">🏆</div>
+                    <div class="text-sm text-gray-600">Badges Earned</div>
+                    <div class="font-bold text-yellow-600" id="badges-count">0</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl mb-2">⏱️</div>
+                    <div class="text-sm text-gray-600">Time Spent</div>
+                    <div class="font-bold text-purple-600" id="time-spent">0 min</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Learning Modules -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            
+            <!-- Module 1: What Are Floods? -->
+            <div class="lesson-card bg-white rounded-lg shadow-lg p-6" onclick="openLesson(1)">
+                <div class="text-4xl mb-4">🌊</div>
+                <h3 class="text-xl font-bold mb-2">What Are Floods?</h3>
+                <p class="text-gray-600 mb-4">Learn the basic definition, types, and characteristics of floods</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full">Beginner</span>
+                    <span class="text-sm text-gray-500">15 min</span>
+                </div>
+                <div class="mt-4 bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-600 h-2 rounded-full lesson-progress" data-lesson="1" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Module 2: Causes of Floods -->
+            <div class="lesson-card bg-white rounded-lg shadow-lg p-6" onclick="openLesson(2)">
+                <div class="text-4xl mb-4">☔</div>
+                <h3 class="text-xl font-bold mb-2">Causes of Floods</h3>
+                <p class="text-gray-600 mb-4">Explore natural and human factors that lead to flooding</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full">Intermediate</span>
+                    <span class="text-sm text-gray-500">20 min</span>
+                </div>
+                <div class="mt-4 bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-600 h-2 rounded-full lesson-progress" data-lesson="2" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Module 3: Types of Floods -->
+            <div class="lesson-card bg-white rounded-lg shadow-lg p-6" onclick="openLesson(3)">
+                <div class="text-4xl mb-4">🏞️</div>
+                <h3 class="text-xl font-bold mb-2">Types of Floods</h3>
+                <p class="text-gray-600 mb-4">River floods, flash floods, coastal floods, and urban floods</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">Intermediate</span>
+                    <span class="text-sm text-gray-500">18 min</span>
+                </div>
+                <div class="mt-4 bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-600 h-2 rounded-full lesson-progress" data-lesson="3" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Module 4: Warning Signs -->
+            <div class="lesson-card bg-white rounded-lg shadow-lg p-6" onclick="openLesson(4)">
+                <div class="text-4xl mb-4">⚠️</div>
+                <h3 class="text-xl font-bold mb-2">Warning Signs</h3>
+                <p class="text-gray-600 mb-4">Recognize early warning signs and flood indicators</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm bg-orange-100 text-orange-800 px-3 py-1 rounded-full">Important</span>
+                    <span class="text-sm text-gray-500">12 min</span>
+                </div>
+                <div class="mt-4 bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-600 h-2 rounded-full lesson-progress" data-lesson="4" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Module 5: Safety During Floods -->
+            <div class="lesson-card bg-white rounded-lg shadow-lg p-6" onclick="openLesson(5)">
+                <div class="text-4xl mb-4">🚨</div>
+                <h3 class="text-xl font-bold mb-2">Safety During Floods</h3>
+                <p class="text-gray-600 mb-4">Essential safety measures and emergency procedures</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm bg-red-100 text-red-800 px-3 py-1 rounded-full">Critical</span>
+                    <span class="text-sm text-gray-500">25 min</span>
+                </div>
+                <div class="mt-4 bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-600 h-2 rounded-full lesson-progress" data-lesson="5" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Module 6: Flood Insurance & Policies -->
+            <div class="lesson-card bg-white rounded-lg shadow-lg p-6" onclick="openLesson(6)">
+                <div class="text-4xl mb-4">🏠</div>
+                <h3 class="text-xl font-bold mb-2">Insurance & Policies</h3>
+                <p class="text-gray-600 mb-4">Understanding flood insurance and government policies</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm bg-purple-100 text-purple-800 px-3 py-1 rounded-full">Advanced</span>
+                    <span class="text-sm text-gray-500">22 min</span>
+                </div>
+                <div class="mt-4 bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-600 h-2 rounded-full lesson-progress" data-lesson="6" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Module 7: Climate Change & Floods -->
+            <div class="lesson-card bg-white rounded-lg shadow-lg p-6" onclick="openLesson(7)">
+                <div class="text-4xl mb-4">🌍</div>
+                <h3 class="text-xl font-bold mb-2">Climate Change & Floods</h3>
+                <p class="text-gray-600 mb-4">How climate change affects flood frequency and intensity</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm bg-teal-100 text-teal-800 px-3 py-1 rounded-full">Advanced</span>
+                    <span class="text-sm text-gray-500">20 min</span>
+                </div>
+                <div class="mt-4 bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-600 h-2 rounded-full lesson-progress" data-lesson="7" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Module 8: Community Preparedness -->
+            <div class="lesson-card bg-white rounded-lg shadow-lg p-6" onclick="openLesson(8)">
+                <div class="text-4xl mb-4">🤝</div>
+                <h3 class="text-xl font-bold mb-2">Community Preparedness</h3>
+                <p class="text-gray-600 mb-4">Building resilient communities and disaster preparedness</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full">Community</span>
+                    <span class="text-sm text-gray-500">18 min</span>
+                </div>
+                <div class="mt-4 bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-600 h-2 rounded-full lesson-progress" data-lesson="8" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Quiz Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4">Quick Knowledge Check</h2>
+            <div id="quiz-container">
+                <div class="quiz-question" id="quiz-question">
+                    <h3 class="text-lg font-semibold mb-4">Which of the following is the most common cause of floods in India?</h3>
+                    <div class="space-y-3">
+                        <div class="quiz-option border rounded-lg p-3" onclick="selectQuizOption(this, false)">
+                            Tsunami waves
+                        </div>
+                        <div class="quiz-option border rounded-lg p-3" onclick="selectQuizOption(this, true)">
+                            Monsoon rains and river overflow
+                    </div>
+                        <div class="quiz-option border rounded-lg p-3" onclick="selectQuizOption(this, false)">
+                            Volcanic eruptions
+                        </div>
+                        <div class="quiz-option border rounded-lg p-3" onclick="selectQuizOption(this, false)">
+                            Industrial accidents
+                        </div>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <button id="next-question-btn" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors" onclick="nextQuestion()" style="display: none;">
+                            Next Question
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Flood Simulation -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4">Interactive Flood Simulation</h2>
+            <div class="interactive-element rounded-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">Virtual Flood Scenario</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold mb-3">Scenario Parameters</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Rainfall Intensity (mm/hour)</label>
+                                <input type="range" id="rainfall-slider" min="0" max="200" value="50" class="w-full" oninput="updateSimulation()">
+                                <span id="rainfall-value" class="text-sm text-gray-600">50 mm/hour</span>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">River Level (%)</label>
+                                <input type="range" id="river-level-slider" min="0" max="100" value="60" class="w-full" oninput="updateSimulation()">
+                                <span id="river-level-value" class="text-sm text-gray-600">60%</span>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Soil Saturation (%)</label>
+                                <input type="range" id="soil-saturation-slider" min="0" max="100" value="40" class="w-full" oninput="updateSimulation()">
+                                <span id="soil-saturation-value" class="text-sm text-gray-600">40%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-3">Flood Risk Assessment</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span>Overall Risk Level:</span>
+                                <span id="risk-level" class="font-bold text-yellow-600">MODERATE</span>
+                            </div>
+                            <div class="bg-gray-200 rounded-full h-4">
+                                <div id="risk-bar" class="bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 h-4 rounded-full transition-all duration-500" style="width: 40%"></div>
+                            </div>
+                            <div class="text-sm text-gray-600" id="risk-description">
+                                Moderate rainfall and river levels. Monitor conditions closely.
+                            </div>
+                            <div class="mt-4">
+                                <h5 class="font-semibold text-sm mb-2">Recommended Actions:</h5>
+                                <ul id="action-list" class="text-sm space-y-1">
+                                    <li>• Monitor weather updates</li>
+                                    <li>• Check emergency supplies</li>
+                                    <li>• Review evacuation plans</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Earned Badges Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4">Earned Badges & Achievements</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="badges-container">
+                <div class="badge-item text-center p-4 border-2 border-dashed border-gray-300 rounded-lg opacity-50" data-badge="beginner">
+                    <div class="text-3xl mb-2">🌊</div>
+                    <div class="text-sm font-semibold">Flood Basics</div>
+                    <div class="text-xs text-gray-500">Complete first lesson</div>
+                </div>
+                <div class="badge-item text-center p-4 border-2 border-dashed border-gray-300 rounded-lg opacity-50" data-badge="quiz-master">
+                    <div class="text-3xl mb-2">🧠</div>
+                    <div class="text-sm font-semibold">Quiz Master</div>
+                    <div class="text-xs text-gray-500">Score 80% on quiz</div>
+                </div>
+                <div class="badge-item text-center p-4 border-2 border-dashed border-gray-300 rounded-lg opacity-50" data-badge="safety-expert">
+                    <div class="text-3xl mb-2">🛡️</div>
+                    <div class="text-sm font-semibold">Safety Expert</div>
+                    <div class="text-xs text-gray-500">Complete safety module</div>
+                </div>
+                <div class="badge-item text-center p-4 border-2 border-dashed border-gray-300 rounded-lg opacity-50" data-badge="preparedness-champion">
+                    <div class="text-3xl mb-2">🏆</div>
+                    <div class="text-sm font-semibold">Preparedness Champion</div>
+                    <div class="text-xs text-gray-500">Complete all modules</div>
+                </div>
+            </div>
+        </div>
+
+            <!-- Additional Resources -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold mb-4">Additional Learning Resources</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="border rounded-lg p-4">
+                    <h3 class="font-semibold mb-2">📚 E-Books & Guides</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-blue-600 hover:underline">Flood Safety Handbook</a></li>
+                        <li><a href="#" class="text-blue-600 hover:underline">Community Preparedness Guide</a></li>
+                        <li><a href="#" class="text-blue-600 hover:underline">Climate Change & Floods Report</a></li>
+                    </ul>
+                </div>
+                <div class="border rounded-lg p-4">
+                    <h3 class="font-semibold mb-2">🎥 Video Lessons</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-blue-600 hover:underline">Flood Formation Animation</a></li>
+                        <li><a href="#" class="text-blue-600 hover:underline">Emergency Response Training</a></li>
+                        <li><a href="#" class="text-blue-600 hover:underline">Real Flood Case Studies</a></li>
+                    </ul>
+                </div>
+                <div class="border rounded-lg p-4">
+                    <h3 class="font-semibold mb-2">🔬 Scientific Data</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-blue-600 hover:underline">Rainfall Patterns Analysis</a></li>
+                        <li><a href="#" class="text-blue-600 hover:underline">River Basin Statistics</a></li>
+                        <li><a href="#" class="text-blue-600 hover:underline">Climate Models & Predictions</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Lesson Modal -->
+    <div id="lesson-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center h-full p-4">
+            <div class="bg-white rounded-lg shadow-lg max-w-4xl w-full max-h-[90vh] overflow-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 id="lesson-title" class="text-2xl font-bold">Lesson Title</h2>
+                        <button onclick="closeLessonModal()" class="text-gray-500 hover:text-gray-700">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="lesson-content" class="prose prose-lg max-w-none">
+                        <!-- Lesson content will be loaded here -->
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                        <button onclick="markLessonComplete()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                            Mark as Complete
+                        </button>
+                        <button onclick="closeLessonModal()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include("partials/footer.ejs") %>
+
+    <script>
+        // Learning progress tracking
+        let learningProgress = {
+            lessonsCompleted: [],
+            quizScore: 0,
+            timeSpent: 0,
+            badges: []
+        };
+
+        // Load progress from localStorage
+        function loadProgress() {
+            const saved = localStorage.getItem('floodEducationProgress');
+            if (saved) {
+                learningProgress = JSON.parse(saved);
+                updateProgressDisplay();
+                updateBadges();
+            }
+        }
+
+        // Save progress to localStorage
+        function saveProgress() {
+            localStorage.setItem('floodEducationProgress', JSON.stringify(learningProgress));
+        }
+
+        // Update progress display
+        function updateProgressDisplay() {
+            const totalLessons = 8;
+            const completed = learningProgress.lessonsCompleted.length;
+            const percentage = Math.round((completed / totalLessons) * 100);
+            
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+            document.getElementById('progress-text').textContent = `${percentage}% Complete`;
+            document.getElementById('lessons-completed').textContent = `${completed}/${totalLessons}`;
+            document.getElementById('quiz-score').textContent = `${learningProgress.quizScore}%`;
+            document.getElementById('badges-count').textContent = learningProgress.badges.length;
+            document.getElementById('time-spent').textContent = `${learningProgress.timeSpent} min`;
+        }
+
+        // Lesson content data
+        const lessonContent = {
+            1: {
+                title: "What Are Floods?",
+                content: `
+                    <h3>Understanding Floods</h3>
+                    <p>A flood is an overflow of water onto normally dry land. When a river, lake, or ocean overflows its banks, it can cause significant damage to nearby areas.</p>
+                    
+                    <h4>Key Characteristics:</h4>
+                    <ul>
+                        <li><strong>Volume:</strong> Large amounts of water moving rapidly</li>
+                        <li><strong>Duration:</strong> Can last from hours to weeks</li>
+                        <li><strong>Impact:</strong> Affects communities, agriculture, and infrastructure</li>
+                        <li><strong>Frequency:</strong> Can be seasonal or unexpected</li>
+                    </ul>
+                    
+                    <h4>Why Floods Occur:</h4>
+                    <p>Floods happen when the amount of water exceeds the capacity of natural or artificial drainage systems. This can be due to:</p>
+                    <ul>
+                        <li>Heavy rainfall over a short period</li>
+                        <li>Snow melting rapidly</li>
+                        <li>Dam failures or releases</li>
+                        <li>Tidal surges</li>
+                        <li>Poor drainage systems</li>
+                    </ul>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg mt-4">
+                        <h4>Did You Know?</h4>
+                        <p>Floods are one of the most common natural disasters worldwide, affecting millions of people annually and causing billions in damages.</p>
+                    </div>
+                `
+            },
+            2: {
+                title: "Causes of Floods",
+                content: `
+                    <h3>Natural Causes</h3>
+                    <h4>1. Heavy Rainfall</h4>
+                    <p>Prolonged or intense rainfall can exceed soil absorption capacity and overwhelm drainage systems.</p>
+                    
+                    <h4>2. Snow and Ice Melt</h4>
+                    <p>Rapid melting of snow or ice due to sudden temperature increases can cause flash floods.</p>
+                    
+                    <h4>3. Storm Surges</h4>
+                    <p>Coastal areas are vulnerable to flooding from storm surges during cyclones and hurricanes.</p>
+                    
+                    <h3>Human-Induced Causes</h3>
+                    <h4>1. Deforestation</h4>
+                    <p>Removal of trees reduces natural water absorption and increases surface runoff.</p>
+                    
+                    <h4>2. Urbanization</h4>
+                    <p>Concrete surfaces increase runoff and reduce natural drainage areas.</p>
+                    
+                    <h4>3. Poor Drainage Systems</h4>
+                    <p>Inadequate or blocked drainage infrastructure can cause urban flooding.</p>
+                    
+                    <h4>4. Dam Operations</h4>
+                    <p>Sudden water releases from dams for safety can cause downstream flooding.</p>
+                    
+                    <div class="bg-yellow-50 p-4 rounded-lg mt-4">
+                        <h4>Climate Change Impact</h4>
+                        <p>Climate change is increasing the frequency and intensity of extreme weather events, including floods.</p>
+                    </div>
+                `
+            },
+            3: {
+                title: "Types of Floods",
+                content: `
+                    <h3>1. River/Fluvial Floods</h3>
+                    <p>Occur when rivers overflow their banks due to excessive rainfall or snowmelt upstream.</p>
+                    <ul>
+                        <li><strong>Duration:</strong> Can last days to weeks</li>
+                        <li><strong>Warning time:</strong> Usually several hours to days</li>
+                        <li><strong>Areas affected:</strong> River valleys and floodplains</li>
+                    </ul>
+                    
+                    <h3>2. Flash Floods</h3>
+                    <p>Rapid flooding of low-lying areas, usually within six hours of intense rainfall.</p>
+                    <ul>
+                        <li><strong>Duration:</strong> Minutes to hours</li>
+                        <li><strong>Warning time:</strong> Very little to none</li>
+                        <li><strong>Areas affected:</strong> Urban areas, valleys, and dry creek beds</li>
+                    </ul>
+                    
+                    <h3>3. Coastal Floods</h3>
+                    <p>Result from storm surge, high tides, or tsunamis affecting coastal areas.</p>
+                    <ul>
+                        <li><strong>Duration:</strong> Hours to days</li>
+                        <li><strong>Warning time:</strong> Hours to days for storms</li>
+                        <li><strong>Areas affected:</strong> Coastal communities and low-lying areas</li>
+                    </ul>
+                    
+                    <h3>4. Urban Floods</h3>
+                    <p>Occur in cities when drainage systems are overwhelmed by rainfall.</p>
+                    <ul>
+                        <li><strong>Duration:</strong> Hours to days</li>
+                        <li><strong>Warning time:</strong> Limited</li>
+                        <li><strong>Areas affected:</strong> City centers, residential areas</li>
+                    </ul>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div class="bg-red-50 p-4 rounded-lg">
+                            <h4>Most Dangerous: Flash Floods</h4>
+                            <p>Flash floods are responsible for most flood-related deaths due to their sudden nature and powerful currents.</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4>Most Common: River Floods</h4>
+                            <p>River floods are the most common type, especially during monsoon seasons in India.</p>
+                        </div>
+                    </div>
+                `
+            },
+            4: {
+                title: "Warning Signs",
+                content: `
+                    <h3>Natural Warning Signs</h3>
+                    <h4>Weather Indicators</h4>
+                    <ul>
+                        <li><strong>Heavy, prolonged rainfall</strong> - More than 100mm in 24 hours</li>
+                        <li><strong>Thunderstorms</strong> - Especially if stationary over an area</li>
+                        <li><strong>Rapid snowmelt</strong> - Due to sudden temperature rise</li>
+                    </ul>
+                    
+                    <h4>Environmental Signs</h4>
+                    <ul>
+                        <li><strong>Rising water levels</strong> in rivers and streams</li>
+                        <li><strong>Muddy or debris-filled water</strong> - Indicates upstream flooding</li>
+                        <li><strong>Sound of rushing water</strong> - May indicate incoming flash flood</li>
+                        <li><strong>Animals fleeing</strong> from low-lying areas</li>
+                    </ul>
+                    
+                    <h3>Official Warning Systems</h3>
+                    <h4>Color-Coded Alerts</h4>
+                    <ul>
+                        <li><span class="inline-block w-4 h-4 bg-green-500 rounded mr-2"></span><strong>Green:</strong> No alert</li>
+                        <li><span class="inline-block w-4 h-4 bg-yellow-500 rounded mr-2"></span><strong>Yellow:</strong> Watch/Monitor</li>
+                        <li><span class="inline-block w-4 h-4 bg-orange-500 rounded mr-2"></span><strong>Orange:</strong> Alert/Prepare</li>
+                        <li><span class="inline-block w-4 h-4 bg-red-500 rounded mr-2"></span><strong>Red:</strong> Warning/Act</li>
+                    </ul>
+                    
+                    <h4>Communication Channels</h4>
+                    <ul>
+                        <li>TV and radio emergency broadcasts</li>
+                        <li>Emergency alert text messages</li>
+                        <li>Sirens and public announcements</li>
+                        <li>Social media and mobile apps</li>
+                        <li>Community warning systems</li>
+                    </ul>
+                    
+                    <div class="bg-red-50 p-4 rounded-lg mt-4">
+                        <h4>⚠️ Critical Warning</h4>
+                        <p><strong>Don't wait for official warnings!</strong> If you observe rapid water rise or hear rushing water, move to higher ground immediately.</p>
+                    </div>
+                    
+                    <h3>What to Do When You Receive a Warning</h3>
+                    <ol>
+                        <li>Stay calm and alert</li>
+                        <li>Gather emergency supplies</li>
+                        <li>Stay informed through official channels</li>
+                        <li>Be ready to evacuate at short notice</li>
+                        <li>Help neighbors, especially elderly and disabled</li>
+                    </ol>
+                `
+            },
+            5: {
+                title: "Safety During Floods",
+                content: `
+                    <h3>Before a Flood</h3>
+                    <h4>Emergency Preparedness</h4>
+                    <ul>
+                        <li><strong>Create an emergency kit</strong> with:
+                            <ul>
+                                <li>Water (1 gallon per person per day for 3 days)</li>
+                                <li>Non-perishable food (3-day supply)</li>
+                                <li>First aid supplies</li>
+                                <li>Flashlights and batteries</li>
+                                <li>Battery-powered radio</li>
+                                <li>Important documents (in waterproof container)</li>
+                                <li>Cash and credit cards</li>
+                                <li>Medications</li>
+                            </ul>
+                        </li>
+                        <li><strong>Develop evacuation plans</strong> with multiple routes</li>
+                        <li><strong>Identify higher ground</strong> and safe locations</li>
+                        <li><strong>Know your area's flood history</strong> and risk level</li>
+                    </ul>
+                    
+                    <h3>During a Flood</h3>
+                    <h4>Safety Rules</h4>
+                    <ul>
+                        <li><strong>Turn Around, Don't Drown:</strong> Never drive, walk, or swim through flood waters</li>
+                        <li><strong>6 inches of moving water</strong> can knock you down</li>
+                        <li><strong>2 feet of rushing water</strong> can carry away vehicles</li>
+                        <li><strong>Stay away from downed power lines</strong> and electrical equipment</li>
+                        <li><strong>If trapped in a building,</strong> go to the highest floor, not the attic</li>
+                    </ul>
+                    
+                    <h4>During Evacuation</h4>
+                    <ul>
+                        <li>Follow evacuation orders immediately</li>
+                        <li>Use designated evacuation routes</li>
+                        <li>Take only essential items</li>
+                        <li>Lock your home and turn off utilities if time permits</li>
+                        <li>Stay with family/friends if possible</li>
+                    </ul>
+                    
+                    <h3>After a Flood</h3>
+                    <h4>Returning Home Safely</h4>
+                    <ul>
+                        <li>Wait for official all-clear before returning</li>
+                        <li>Check for structural damage before entering</li>
+                        <li>Turn off electricity if water damage is present</li>
+                        <li>Wear protective gear when cleaning</li>
+                        <li>Document damage with photos for insurance</li>
+                        <li>Discard contaminated food and water</li>
+                    </ul>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div class="bg-red-50 p-4 rounded-lg">
+                            <h4>🚨 Emergency Numbers</h4>
+                            <ul class="text-sm">
+                                <li><strong>Emergency Services:</strong> 112</li>
+                                <li><strong>NDRF:</strong> 1078</li>
+                                <li><strong>Flood Helpline:</strong> 1800-180-1551</li>
+                            </ul>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4>💡 Remember</h4>
+                            <p class="text-sm">Most flood-related deaths occur in vehicles. When in doubt, turn around and find an alternate route.</p>
+                        </div>
+                    </div>
+                `
+            },
+            6: {
+                title: "Insurance & Policies",
+                content: `
+                    <h3>Understanding Flood Insurance</h3>
+                    <h4>What is Flood Insurance?</h4>
+                    <p>Flood insurance is a separate insurance policy that covers damages caused by flooding. Standard home insurance policies typically do NOT cover flood damage.</p>
+                    
+                    <h4>Types of Coverage</h4>
+                    <ul>
+                        <li><strong>Dwelling Coverage:</strong> Covers physical structure of your home</li>
+                        <li><strong>Contents Coverage:</strong> Covers personal belongings</li>
+                        <li><strong>Additional Living Expenses:</strong> Covers temporary housing costs</li>
+                        <li><strong>Business Interruption:</strong> Covers lost income for businesses</li>
+                    </ul>
+                    
+                    <h3>Government Schemes in India</h3>
+                    <h4>1. Pradhan Mantri Fasal Bima Yojana (PMFBY)</h4>
+                    <ul>
+                        <li>Crop insurance against flood damage</li>
+                        <li>Low premium rates for farmers</li>
+                        <li>Government subsidized</li>
+                    </ul>
+                    
+                    <h4>2. National/State Disaster Response Funds</h4>
+                    <ul>
+                        <li>Emergency relief for flood victims</li>
+                        <li>Immediate financial assistance</li>
+                        <li>Rehabilitation support</li>
+                    </ul>
+                    
+                    <h4>3. Building and Other Construction Workers' Welfare Funds</h4>
+                    <ul>
+                        <li>Special assistance for construction workers</li>
+                        <li>Housing repair/reconstruction aid</li>
+                    </ul>
+                    
+                    <h3>Private Insurance Options</h3>
+                    <h4>Major Insurance Providers</h4>
+                    <ul>
+                        <li>National Insurance Company Ltd.</li>
+                        <li>United India Insurance</li>
+                        <li>Oriental Insurance</li>
+                        <li>New India Assurance</li>
+                        <li>Private companies (HDFC ERGO, ICICI Lombard, etc.)</li>
+                    </ul>
+                    
+                    <h4>Key Considerations</h4>
+                    <ul>
+                        <li><strong>Waiting Period:</strong> Usually 15-30 days before coverage begins</li>
+                        <li><strong>Premium Rates:</strong> Based on flood risk zones</li>
+                        <li><strong>Coverage Limits:</strong> Maximum payouts for different categories</li>
+                        <li><strong>Deductibles:</strong> Amount you pay before insurance kicks in</li>
+                    </ul>
+                    
+                    <div class="bg-yellow-50 p-4 rounded-lg mt-4">
+                        <h4>💰 Cost Calculation</h4>
+                        <p>Premium typically ranges from 0.1% to 1% of property value, depending on risk zone.</p>
+                        <ul>
+                            <li><strong>Low Risk:</strong> 0.1% - 0.2%</li>
+                            <li><strong>Moderate Risk:</strong> 0.25% - 0.5%</li>
+                            <li><strong>High Risk:</strong> 0.5% - 1%</li>
+                        </ul>
+                    </div>
+                    
+                    <h3>Steps to Get Flood Insurance</h3>
+                    <ol>
+                        <li>Assess your flood risk zone</li>
+                        <li>Calculate property value</li>
+                        <li>Compare different insurers</li>
+                        <li>Choose appropriate coverage</li>
+                        <li>Submit application with required documents</li>
+                        <li>Pay premium and get policy</li>
+                    </ol>
+                `
+            },
+            7: {
+                title: "Climate Change & Floods",
+                content: `
+                    <h3>Climate Change Impact on Floods</h3>
+                    <h4>How Climate Change Affects Flooding</h4>
+                    <ul>
+                        <li><strong>Increased Rainfall Intensity:</strong> Warmer air holds more moisture, leading to heavier rainfall</li>
+                        <li><strong>Changing Precipitation Patterns:</strong> More extreme weather events and irregular rainfall</li>
+                        <li><strong>Sea Level Rise:</strong> Increases coastal flooding risk</li>
+                        <li><strong>Glacial Melting:</strong> Increases river flow and flood risk in some regions</li>
+                    </ul>
+                    
+                    <h3>Observable Trends</h3>
+                    <h4>In India</h4>
+                    <ul>
+                        <li>Increase in extreme rainfall events during monsoons</li>
+                        <li>More frequent flash floods in urban areas</li>
+                        <li>Coastal flooding due to cyclone intensity</li>
+                        <li>Unpredictable weather patterns</li>
+                    </ul>
+                    
+                    <h4>Global Trends</h4>
+                    <ul>
+                        <li>More frequent "100-year floods"</li>
+                        <li>Increased economic losses from flooding</li>
+                        <li>Greater population at risk</li>
+                        <li>More intense tropical cyclones</li>
+                    </ul>
+                    
+                    <h3>Future Projections</h3>
+                    <h4>By 2050</h4>
+                    <ul>
+                        <li>20-30% increase in flood frequency in many regions</li>
+                        <li>50% increase in people at risk of flooding</li>
+                        <li>Coastal areas particularly vulnerable</li>
+                        <li>Economic losses could double</li>
+                    </ul>
+                    
+                    <h3>Adaptation Strategies</h3>
+                    <h4>Infrastructure Adaptation</h4>
+                    <ul>
+                        <li>Improved drainage systems</li>
+                        <li>Green infrastructure (parks, wetlands)</li>
+                        <li>Flood-resistant building designs</li>
+                        <li>Better urban planning</li>
+                    </ul>
+                    
+                    <h4>Nature-Based Solutions</h4>
+                    <ul>
+                        <li>Restoration of floodplains and wetlands</li>
+                        <li>Reforestation and afforestation</li>
+                        <li>Sustainable agricultural practices</li>
+                        <li>Watershed management</li>
+                    </ul>
+                    
+                    <h4>Policy and Governance</h4>
+                    <ul>
+                        <li>Updated building codes</li>
+                        <li>Land use planning reforms</li>
+                        <li>Insurance policy updates</li>
+                        <li>International cooperation</li>
+                    </ul>
+                    
+                    <div class="bg-green-50 p-4 rounded-lg mt-4">
+                        <h4>🌱 What You Can Do</h4>
+                        <ul>
+                            <li>Reduce carbon footprint</li>
+                            <li>Support sustainable practices</li>
+                            <li>Advocate for climate action</li>
+                            <li>Stay informed about climate impacts</li>
+                        </ul>
+                    </div>
+                    
+                    <h3>Technology and Innovation</h3>
+                    <ul>
+                        <li><strong>Early Warning Systems:</strong> AI-powered flood prediction</li>
+                        <li><strong>Remote Sensing:</strong> Satellite monitoring of risk areas</li>
+                        <li><strong>Smart Infrastructure:</strong> IoT-enabled flood management</li>
+                        <li><strong>Climate Models:</strong> Better long-term projections</li>
+                    </ul>
+                `
+            },
+            8: {
+                title: "Community Preparedness",
+                content: `
+                    <h3>Building Resilient Communities</h3>
+                    <h4>What is Community Preparedness?</h4>
+                    <p>Community preparedness involves collective efforts to prepare for, respond to, and recover from floods. It includes physical infrastructure, social systems, and community knowledge.</p>
+                    
+                    <h3>Key Components</h3>
+                    <h4>1. Community Planning</h4>
+                    <ul>
+                        <li><strong>Risk Assessment:</strong> Understanding local flood risks</li>
+                        <li><strong>Vulnerability Mapping:</strong> Identifying at-risk areas and populations</li>
+                        <li><strong>Resource Inventory:</strong> Available resources and facilities</li>
+                        <li><strong>Communication Plans:</strong> How to reach everyone during emergencies</li>
+                    </ul>
+                    
+                    <h4>2. Infrastructure Development</h4>
+                    <ul>
+                        <li>Improved drainage systems</li>
+                        <li>Flood barriers and levees</li>
+                        <li>Emergency shelters and evacuation centers</li>
+                        <li>Early warning systems</li>
+                        <li>Backup power and communication systems</li>
+                    </ul>
+                    
+                    <h4>3. Social Preparedness</h4>
+                    <ul>
+                        <li>Community education programs</li>
+                        <li>Volunteer training (first aid, rescue)</li>
+                        <li>Mock drills and exercises</li>
+                        <li>Neighborhood watch groups</li>
+                        <li>Support networks for vulnerable populations</li>
+                    </ul>
+                    
+                    <h3>Community Organizations</h3>
+                    <h4>Government Agencies</h4>
+                    <ul>
+                        <li><strong>District Collectors:</strong> Local administrative heads</li>
+                        <li><strong>Municipal Corporations:</strong> Urban flood management</li>
+                        <li><strong>Police and Fire Departments:</strong> Emergency response</li>
+                        <li><strong>Health Departments:</strong> Medical emergency response</li>
+                    </ul>
+                    
+                    <h4>Non-Governmental Organizations</h4>
+                    <ul>
+                        <li>Red Cross and Red Crescent</li>
+                        <li>Local NGOs and community groups</li>
+                        <li>Religious organizations</li>
+                        <li>Professional associations</li>
+                    </ul>
+                    
+                    <h4>Community Groups</h4>
+                    <ul>
+                        <li>Resident welfare associations</li>
+                        <li>Self-help groups</li>
+                        <li>Youth clubs and organizations</li>
+                        <li>Senior citizen groups</li>
+                    </ul>
+                    
+                    <h3>Building Community Resilience</h3>
+                    <h4>Steps to Strengthen Your Community</h4>
+                    <ol>
+                        <li><strong>Form a Community Emergency Team</strong>
+                            <ul>
+                                <li>Include diverse representation</li>
+                                <li>Define roles and responsibilities</li>
+                                <li>Regular meetings and training</li>
+                            </ul>
+                        </li>
+                        <li><strong>Conduct Community Risk Assessment</strong>
+                            <ul>
+                                <li>Identify flood-prone areas</li>
+                                <li>Map vulnerable populations</li>
+                                <li>Assess local resources</li>
+                            </ul>
+                        </li>
+                        <li><strong>Develop Emergency Communication Plans</strong>
+                            <ul>
+                                <li>Multiple communication channels</li>
+                                <li>Backup systems</li>
+                                <li>Regular testing</li>
+                            </ul>
+                        </li>
+                        <li><strong>Organize Regular Training and Drills</strong>
+                            <ul>
+                                <li>Evacuation procedures</li>
+                                <li>First aid and rescue training</li>
+                                <li>Mock flood drills</li>
+                            </ul>
+                        </li>
+                        <li><strong>Build Community Partnerships</strong>
+                            <ul>
+                                <li>Collaborate with local agencies</li>
+                                <li>Partner with neighboring communities</li>
+                                <li>Engage local businesses</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    
+                    <h3>Special Considerations</h3>
+                    <h4>Vulnerable Populations</h4>
+                    <ul>
+                        <li><strong>Elderly:</strong> May need assistance with mobility and medication</li>
+                        <li><strong>Children:</strong> Need special care and age-appropriate communication</li>
+                        <li><strong>People with Disabilities:</strong> May need accessible evacuation routes</li>
+                        <li><strong>Economically Disadvantaged:</strong> May lack resources for preparation</li>
+                        <li><strong>Linguistic Minorities:</strong> Need information in their languages</li>
+                    </ul>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg mt-4">
+                        <h4>🤝 Community Success Stories</h4>
+                        <p>Communities in Kerala and Odisha have successfully reduced flood casualties through community-based early warning systems and preparedness programs.</p>
+                    </div>
+                    
+                    <h3>Post-Flood Community Recovery</h3>
+                    <ul>
+                        <li>Coordinate relief efforts</li>
+                        <li>Support mental health and trauma recovery</li>
+                        <li>Rebuild better with flood-resistant features</li>
+                        <li>Learn from the experience and improve preparedness</li>
+                        <li>Strengthen community bonds and resilience</li>
+                    </ul>
+                    
+                    <h3>Getting Involved</h3>
+                    <ul>
+                        <li>Join local emergency response teams</li>
+                        <li>Volunteer with disaster relief organizations</li>
+                        <li>Participate in community planning meetings</li>
+                        <li>Share knowledge and skills with neighbors</li>
+                        <li>Advocate for better flood management policies</li>
+                    </ul>
+                `
+            }
+        };
+
+        // Quiz questions
+        const quizQuestions = [
+            {
+                question: "Which of the following is the most common cause of floods in India?",
+                options: [
+                    "Tsunami waves",
+                    "Monsoon rains and river overflow",
+                    "Volcanic eruptions",
+                    "Industrial accidents"
+                ],
+                correct: 1
+            },
+            {
+                question: "How much flowing water can knock a person down?",
+                options: [
+                    "2 inches",
+                    "6 inches",
+                    "12 inches",
+                    "2 feet"
+                ],
+                correct: 1
+            },
+            {
+                question: "What should you do if you're trapped in a building during a flood?",
+                options: [
+                    "Go to the basement",
+                    "Stay on the ground floor",
+                    "Go to the highest floor",
+                    "Go to the attic"
+                ],
+                correct: 2
+            },
+            {
+                question: "Standard home insurance policies typically cover flood damage.",
+                options: [
+                    "True",
+                    "False"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is the typical waiting period for flood insurance coverage?",
+                options: [
+                    "Immediate",
+                    "1-3 days",
+                    "15-30 days",
+                    "6 months"
+                ],
+                correct: 2
+            }
+        ];
+
+        let currentQuiz = 0;
+        let quizAnswers = [];
+
+        // Open lesson modal
+        function openLesson(lessonId) {
+            const lesson = lessonContent[lessonId];
+            if (lesson) {
+                document.getElementById('lesson-title').textContent = lesson.title;
+                document.getElementById('lesson-content').innerHTML = lesson.content;
+                document.getElementById('lesson-modal').classList.remove('hidden');
+                
+                // Start timer
+                const startTime = Date.now();
+                document.getElementById('lesson-modal').setAttribute('data-start-time', startTime);
+            }
+        }
+
+        // Close lesson modal
+        function closeLessonModal() {
+            document.getElementById('lesson-modal').classList.add('hidden');
+        }
+
+        // Mark lesson as complete
+        function markLessonComplete() {
+            const modal = document.getElementById('lesson-modal');
+            const startTime = parseInt(modal.getAttribute('data-start-time'));
+            const timeSpent = Math.round((Date.now() - startTime) / 1000 / 60); // in minutes
+            
+            // Get lesson ID from the modal title
+            const title = document.getElementById('lesson-title').textContent;
+            let lessonId = 0;
+            for (let id in lessonContent) {
+                if (lessonContent[id].title === title) {
+                    lessonId = parseInt(id);
+                    break;
+                }
+            }
+            
+            // Update progress
+            if (!learningProgress.lessonsCompleted.includes(lessonId)) {
+                learningProgress.lessonsCompleted.push(lessonId);
+                learningProgress.timeSpent += timeSpent;
+                
+                // Update lesson progress bar
+                const progressBar = document.querySelector(`[data-lesson="${lessonId}"]`);
+                if (progressBar) {
+                    progressBar.style.width = '100%';
+                }
+                
+                // Check for badges
+                checkBadges();
+                
+                // Save progress
+                saveProgress();
+                updateProgressDisplay();
+                
+                // Show completion message
+                alert(`Lesson completed! You spent ${timeSpent} minutes learning.`);
+            }
+            
+            closeLessonModal();
+        }
+
+        // Quiz functions
+        function selectQuizOption(element, isCorrect) {
+            // Remove previous selections
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.classList.remove('correct', 'incorrect');
+            });
+            
+            // Mark selection
+            if (isCorrect) {
+                element.classList.add('correct');
+                quizAnswers[currentQuiz] = true;
+            } else {
+                element.classList.add('incorrect');
+                quizAnswers[currentQuiz] = false;
+                
+                // Show correct answer
+                document.querySelectorAll('.quiz-option').forEach((option, index) => {
+                    if (index === quizQuestions[currentQuiz].correct) {
+                        option.classList.add('correct');
+                    }
+                });
+            }
+            
+            // Show next question button
+            document.getElementById('next-question-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuiz++;
+            if (currentQuiz < quizQuestions.length) {
+                loadQuizQuestion();
+            } else {
+                showQuizResults();
+            }
+        }
+
+        function loadQuizQuestion() {
+            const question = quizQuestions[currentQuiz];
+            const container = document.getElementById('quiz-container');
+            
+            container.innerHTML = `
+                <div class="quiz-question">
+                    <h3 class="text-lg font-semibold mb-4">${question.question}</h3>
+                    <div class="space-y-3">
+                        ${question.options.map((option, index) => `
+                            <div class="quiz-option border rounded-lg p-3" onclick="selectQuizOption(this, ${index === question.correct})">
+                                ${option}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="mt-4 text-center">
+                        <button id="next-question-btn" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors" onclick="nextQuestion()" style="display: none;">
+                            ${currentQuiz === quizQuestions.length - 1 ? 'Finish Quiz' : 'Next Question'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showQuizResults() {
+            const correctAnswers = quizAnswers.filter(answer => answer === true).length;
+            const score = Math.round((correctAnswers / quizQuestions.length) * 100);
+            
+            learningProgress.quizScore = score;
+            saveProgress();
+            updateProgressDisplay();
+            checkBadges();
+            
+            document.getElementById('quiz-container').innerHTML = `
+                <div class="text-center">
+                    <h3 class="text-2xl font-bold mb-4">Quiz Complete!</h3>
+                    <div class="text-4xl font-bold text-blue-600 mb-2">${score}%</div>
+                    <p class="text-gray-600 mb-4">You answered ${correctAnswers} out of ${quizQuestions.length} questions correctly.</p>
+                    <button onclick="restartQuiz()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        Take Quiz Again
+                    </button>
+                </div>
+            `;
+        }
+
+        function restartQuiz() {
+            currentQuiz = 0;
+            quizAnswers = [];
+            loadQuizQuestion();
+        }
+
+        // Badge system
+        function checkBadges() {
+            const newBadges = [];
+            
+            // Beginner badge
+            if (learningProgress.lessonsCompleted.length >= 1 && !learningProgress.badges.includes('beginner')) {
+                newBadges.push('beginner');
+            }
+            
+            // Quiz master badge
+            if (learningProgress.quizScore >= 80 && !learningProgress.badges.includes('quiz-master')) {
+                newBadges.push('quiz-master');
+            }
+            
+            // Safety expert badge
+            if (learningProgress.lessonsCompleted.includes(5) && !learningProgress.badges.includes('safety-expert')) {
+                newBadges.push('safety-expert');
+            }
+            
+            // Preparedness champion badge
+            if (learningProgress.lessonsCompleted.length === 8 && !learningProgress.badges.includes('preparedness-champion')) {
+                newBadges.push('preparedness-champion');
+            }
+            
+            // Award new badges
+            newBadges.forEach(badge => {
+                learningProgress.badges.push(badge);
+                awardBadge(badge);
+            });
+            
+            updateBadges();
+        }
+
+        function awardBadge(badgeId) {
+            const badge = document.querySelector(`[data-badge="${badgeId}"]`);
+            if (badge) {
+                badge.classList.remove('opacity-50');
+                badge.classList.add('border-yellow-400', 'bg-yellow-50');
+                badge.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    badge.style.transform = 'scale(1)';
+                }, 300);
+                
+                // Show notification
+                showNotification(`🏆 Badge earned: ${badge.querySelector('.font-semibold').textContent}!`);
+            }
+        }
+
+        function updateBadges() {
+            learningProgress.badges.forEach(badgeId => {
+                const badge = document.querySelector(`[data-badge="${badgeId}"]`);
+                if (badge) {
+                    badge.classList.remove('opacity-50');
+                    badge.classList.add('border-yellow-400', 'bg-yellow-50');
+                }
+            });
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Flood simulation
+        function updateSimulation() {
+            const rainfall = parseFloat(document.getElementById('rainfall-slider').value);
+            const riverLevel = parseFloat(document.getElementById('river-level-slider').value);
+            const soilSaturation = parseFloat(document.getElementById('soil-saturation-slider').value);
+            
+            // Update display values
+            document.getElementById('rainfall-value').textContent = `${rainfall} mm/hour`;
+            document.getElementById('river-level-value').textContent = `${riverLevel}%`;
+            document.getElementById('soil-saturation-value').textContent = `${soilSaturation}%`;
+            
+            // Calculate risk score
+            const riskScore = (rainfall * 0.4 + riverLevel * 0.35 + soilSaturation * 0.25);
+            let riskLevel = 'LOW';
+            let riskColor = 'green';
+            let recommendations = [
+                '• Monitor weather updates',
+                '• Check emergency supplies',
+                '• Review evacuation plans'
+            ];
+            
+            if (riskScore >= 75) {
+                riskLevel = 'SEVERE';
+                riskColor = 'red';
+                recommendations = [
+                    '• Immediate evacuation recommended',
+                    '• Activate emergency response teams',
+                    '• Issue public warnings',
+                    '• Open emergency shelters'
+                ];
+            } else if (riskScore >= 60) {
+                riskLevel = 'HIGH';
+                riskColor = 'orange';
+                recommendations = [
+                    '• Prepare for possible evacuation',
+                    '• Monitor conditions closely',
+                    '• Alert emergency services',
+                    '• Check on vulnerable neighbors'
+                ];
+            } else if (riskScore >= 40) {
+                riskLevel = 'MODERATE';
+                riskColor = 'yellow';
+                recommendations = [
+                    '• Continue monitoring conditions',
+                    '• Review emergency procedures',
+                    '• Stay alert for updates',
+                    '• Prepare emergency kit'
+                ];
+            }
+            
+            // Update UI
+            document.getElementById('risk-level').textContent = riskLevel;
+            document.getElementById('risk-level').className = `font-bold text-${riskColor}-600`;
+            document.getElementById('risk-bar').style.width = `${riskScore}%`;
+            
+            let description = '';
+            if (riskScore >= 75) {
+                description = 'Critical conditions. Immediate action required.';
+            } else if (riskScore >= 60) {
+                description = 'High risk conditions. Prepare for potential flooding.';
+            } else if (riskScore >= 40) {
+                description = 'Moderate conditions. Stay vigilant.';
+            } else {
+                description = 'Low risk conditions. Continue normal monitoring.';
+            }
+            
+            document.getElementById('risk-description').textContent = description;
+            document.getElementById('action-list').innerHTML = recommendations.join('<br>');
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProgress();
+            loadQuizQuestion();
+            updateSimulation();
+            
+            // Update time spent periodically
+            setInterval(() => {
+                learningProgress.timeSpent += 1; // Add 1 minute
+                saveProgress();
+                updateProgressDisplay();
+            }, 60000); // Every minute
+        });
+    </script>
+</body>
+</html>

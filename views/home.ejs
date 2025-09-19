@@ -1,0 +1,287 @@
+        <!-- Flood Prediction Factors -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4">Flood Prediction Factors</h2>
+            
+            <!-- Current Conditions -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <!-- River Level -->
+                <div class="p-4 bg-blue-50 rounded-lg">
+                    <h3 class="font-bold text-blue-700 mb-2">River Level</h3>
+                    <div class="flex items-center justify-between">
+                        <span class="text-2xl font-bold" id="currentLevel">--</span>
+                        <span class="text-sm text-gray-600">m³/s</span>
+                    </div>
+                    <div class="mt-2">
+                        <div class="h-2 bg-gray-200 rounded-full">
+                            <div class="h-2 bg-blue-600 rounded-full" id="levelBar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rainfall -->
+                <div class="p-4 bg-green-50 rounded-lg">
+                    <h3 class="font-bold text-green-700 mb-2">Rainfall (24h)</h3>
+                    <div class="flex items-center justify-between">
+                        <span class="text-2xl font-bold" id="rainfallLevel">--</span>
+                        <span class="text-sm text-gray-600">mm</span>
+                    </div>
+                    <div class="mt-2">
+                        <div class="h-2 bg-gray-200 rounded-full">
+                            <div class="h-2 bg-green-600 rounded-full" id="rainfallBar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Soil Moisture -->
+                <div class="p-4 bg-yellow-50 rounded-lg">
+                    <h3 class="font-bold text-yellow-700 mb-2">Soil Moisture</h3>
+                    <div class="flex items-center justify-between">
+                        <span class="text-2xl font-bold" id="soilMoisture">--</span>
+                        <span class="text-sm text-gray-600">%</span>
+                    </div>
+                    <div class="mt-2">
+                        <div class="h-2 bg-gray-200 rounded-full">
+                            <div class="h-2 bg-yellow-600 rounded-full" id="soilMoistureBar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Basin Capacity -->
+                <div class="p-4 bg-purple-50 rounded-lg">
+                    <h3 class="font-bold text-purple-700 mb-2">Basin Capacity</h3>
+                    <div class="flex items-center justify-between">
+                        <span class="text-2xl font-bold" id="basinCapacity">--</span>
+                        <span class="text-sm text-gray-600">%</span>
+                    </div>
+                    <div class="mt-2">
+                        <div class="h-2 bg-gray-200 rounded-full">
+                            <div class="h-2 bg-purple-600 rounded-full" id="basinCapacityBar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historical Data -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Historical Flood Events -->
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <h3 class="font-bold text-gray-700 mb-4">Historical Flood Events</h3>
+                    <div class="space-y-4" id="historicalEvents">
+                        <!-- Events will be populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Basin Characteristics -->
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <h3 class="font-bold text-gray-700 mb-4">Basin Characteristics</h3>
+                    <div class="space-y-4" id="basinCharacteristics">
+                        <!-- Characteristics will be populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- River Basins Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4">Select River Basin</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <button onclick="selectBasin('ganga')" class="basin-btn p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                    <h3 class="font-bold text-blue-700">Ganga Basin</h3>
+                    <p class="text-sm text-gray-600 mt-1">Current Level: 12,105 m³/s</p>
+                </button>
+                <button onclick="selectBasin('yamuna')" class="basin-btn p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                    <h3 class="font-bold text-blue-700">Yamuna Basin</h3>
+                    <p class="text-sm text-gray-600 mt-1">Current Level: 2,950 m³/s</p>
+                </button>
+                <button onclick="selectBasin('brahmaputra')" class="basin-btn p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                    <h3 class="font-bold text-blue-700">Brahmaputra Basin</h3>
+                    <p class="text-sm text-gray-600 mt-1">Current Level: 3,200 m³/s</p>
+                </button>
+            </div>
+        </div>
+
+        <script>
+            // Sample data for demonstration
+            const floodFactors = {
+                "ganga": {
+                    currentLevel: 12105,
+                    dangerLevel: 15000,
+                    rainfall: {
+                        current: 45,
+                        threshold: 100
+                    },
+                    soilMoisture: {
+                        current: 85,
+                        threshold: 90
+                    },
+                    basinCapacity: {
+                        current: 75,
+                        threshold: 80
+                    },
+                    historicalEvents: [
+                        { year: 2023, level: 12105, impact: "Current moderate risk level" },
+                        { year: 2023, level: 15000, impact: "Danger level threshold" },
+                        { year: 2023, level: 18000, impact: "Severe flood risk level" }
+                    ],
+                    characteristics: [
+                        { name: "Drainage Area", value: "1,080,000 km²" },
+                        { name: "Average Slope", value: "0.2%" },
+                        { name: "Vegetation Cover", value: "65%" },
+                        { name: "Urban Area", value: "15%" }
+                    ]
+                },
+                "yamuna": {
+                    currentLevel: 2950,
+                    dangerLevel: 5000,
+                    rainfall: {
+                        current: 35,
+                        threshold: 80
+                    },
+                    soilMoisture: {
+                        current: 75,
+                        threshold: 85
+                    },
+                    basinCapacity: {
+                        current: 65,
+                        threshold: 75
+                    },
+                    historicalEvents: [
+                        { year: 2023, level: 2950, impact: "Current moderate risk level" },
+                        { year: 2023, level: 5000, impact: "Danger level threshold" },
+                        { year: 2023, level: 6000, impact: "Severe flood risk level" }
+                    ],
+                    characteristics: [
+                        { name: "Drainage Area", value: "366,223 km²" },
+                        { name: "Average Slope", value: "0.3%" },
+                        { name: "Vegetation Cover", value: "55%" },
+                        { name: "Urban Area", value: "25%" }
+                    ]
+                },
+                "brahmaputra": {
+                    currentLevel: 3200,
+                    dangerLevel: 20000,
+                    rainfall: {
+                        current: 65,
+                        threshold: 120
+                    },
+                    soilMoisture: {
+                        current: 90,
+                        threshold: 95
+                    },
+                    basinCapacity: {
+                        current: 80,
+                        threshold: 85
+                    },
+                    historicalEvents: [
+                        { year: 2023, level: 3200, impact: "Current low-flow level" },
+                        { year: 2023, level: 19200, impact: "Monsoon peak level" },
+                        { year: 2023, level: 20000, impact: "Danger level threshold" }
+                    ],
+                    characteristics: [
+                        { name: "Drainage Area", value: "651,334 km²" },
+                        { name: "Average Slope", value: "0.4%" },
+                        { name: "Vegetation Cover", value: "75%" },
+                        { name: "Urban Area", value: "10%" }
+                    ]
+                },
+                "godavari": {
+                    currentLevel: 4339,
+                    dangerLevel: 6000,
+                    rainfall: {
+                        current: 40,
+                        threshold: 90
+                    },
+                    soilMoisture: {
+                        current: 80,
+                        threshold: 88
+                    },
+                    basinCapacity: {
+                        current: 70,
+                        threshold: 78
+                    },
+                    historicalEvents: [
+                        { year: 2023, level: 4339, impact: "Current moderate risk level" },
+                        { year: 2023, level: 6000, impact: "Danger level threshold" },
+                        { year: 2023, level: 7200, impact: "Severe flood risk level" }
+                    ],
+                    characteristics: [
+                        { name: "Drainage Area", value: "312,812 km²" },
+                        { name: "Average Slope", value: "0.25%" },
+                        { name: "Vegetation Cover", value: "60%" },
+                        { name: "Urban Area", value: "20%" }
+                    ]
+                }
+            };
+
+            function updateFloodFactors(basinId) {
+                const basin = floodFactors[basinId];
+                if (!basin) return;
+
+                // Update current level
+                document.getElementById('currentLevel').textContent = basin.currentLevel.toLocaleString();
+                const levelPercentage = (basin.currentLevel / basin.dangerLevel) * 100;
+                document.getElementById('levelBar').style.width = `${Math.min(levelPercentage, 100)}%`;
+
+                // Update rainfall
+                document.getElementById('rainfallLevel').textContent = basin.rainfall.current;
+                const rainfallPercentage = (basin.rainfall.current / basin.rainfall.threshold) * 100;
+                document.getElementById('rainfallBar').style.width = `${Math.min(rainfallPercentage, 100)}%`;
+
+                // Update soil moisture
+                document.getElementById('soilMoisture').textContent = basin.soilMoisture.current;
+                const soilMoisturePercentage = (basin.soilMoisture.current / basin.soilMoisture.threshold) * 100;
+                document.getElementById('soilMoistureBar').style.width = `${Math.min(soilMoisturePercentage, 100)}%`;
+
+                // Update basin capacity
+                document.getElementById('basinCapacity').textContent = basin.basinCapacity.current;
+                const basinCapacityPercentage = (basin.basinCapacity.current / basin.basinCapacity.threshold) * 100;
+                document.getElementById('basinCapacityBar').style.width = `${Math.min(basinCapacityPercentage, 100)}%`;
+
+                // Update historical events
+                const historicalEventsHtml = basin.historicalEvents.map(event => `
+                    <div class="p-3 bg-white rounded-lg shadow-sm">
+                        <div class="flex justify-between items-center">
+                            <span class="font-semibold">${event.year}</span>
+                            <span class="text-sm text-gray-600">${event.level.toLocaleString()} m³/s</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">${event.impact}</p>
+                    </div>
+                `).join('');
+                document.getElementById('historicalEvents').innerHTML = historicalEventsHtml;
+
+                // Update basin characteristics
+                const characteristicsHtml = basin.characteristics.map(char => `
+                    <div class="p-3 bg-white rounded-lg shadow-sm">
+                        <div class="flex justify-between items-center">
+                            <span class="font-semibold">${char.name}</span>
+                            <span class="text-sm text-gray-600">${char.value}</span>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('basinCharacteristics').innerHTML = characteristicsHtml;
+            }
+
+            // Call this function when a basin is selected
+            function onBasinSelect(basinId) {
+                updateFloodFactors(basinId);
+            }
+
+            function selectBasin(basinId) {
+                // Update active state of buttons
+                document.querySelectorAll('.basin-btn').forEach(btn => {
+                    btn.classList.remove('bg-blue-100');
+                    btn.classList.add('bg-blue-50');
+                });
+                event.currentTarget.classList.remove('bg-blue-50');
+                event.currentTarget.classList.add('bg-blue-100');
+
+                // Update flood factors
+                updateFloodFactors(basinId);
+
+                // Show the flood prediction factors section
+                document.querySelector('.bg-white.rounded-lg.shadow-md.p-6.mb-8').scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        </script> 

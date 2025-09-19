@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About FloodShield - Your Flood Preparedness Partner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        }
+        .feature-card {
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" fill="%23ffffff" opacity=".25"/></svg>');
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+        .hero-image {
+            background-image: url('https://images.unsplash.com/photo-1519125323398-675f0ddb6308?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            opacity: 0.2;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <%- include("partials/header.ejs") %>
+    
+    <!-- Hero Section -->
+    <section class="hero-section text-white py-20 relative overflow-hidden">
+        <div class="hero-image"></div>
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-5xl md:text-6xl font-bold mb-6 animate__animated animate__fadeInDown">
+                    Transforming Flood Preparedness
+                </h1>
+                <p class="text-xl md:text-2xl text-blue-100 mb-8 animate__animated animate__fadeInUp animate__delay-1s">
+                    Empowering communities with real-time monitoring and coordinated response systems
+                </p>
+                <div class="flex justify-center space-x-4 animate__animated animate__fadeInUp animate__delay-2s">
+                    <a href="/volunteer" class="px-8 py-3 bg-white text-blue-600 rounded-full font-semibold hover:bg-blue-50 transition duration-300">
+                        Join Our Mission
+                    </a>
+                    <a href="/live-updates" class="px-8 py-3 border-2 border-white text-white rounded-full font-semibold hover:bg-white hover:text-blue-600 transition duration-300">
+                        View Live Updates
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="wave"></div>
+    </section>
+
+    <!-- Mission Section -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-8">
+                    Our Mission
+                </h2>
+                <p class="text-xl text-gray-600 mb-12">
+                    FloodShield is dedicated to revolutionizing flood preparedness and response through innovative technology and community engagement.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="feature-card p-8 rounded-2xl">
+                        <img src="https://in.images.search.yahoo.com/images/view;_ylt=Awr1ReKWKiRoeWomzTm9HAx.;_ylu=c2VjA3NyBHNsawNpbWcEb2lkA2VmMzk5Yjk4NGE1NjBjMWJkNDNjMzU1MjQ0YzE2NjdkBGdwb3MDMjYEaXQDYmluZw--?back=https%3A%2F%2Fin.images.search.yahoo.com%2Fsearch%2Fimages%3Fp%3Dreal%2Btime%2Bmonitoring%2Bsystem%26type%3DE210IN714G0%26fr%3Dmcafee%26fr2%3Dpiv-web%26tab%3Dorganic%26ri%3D26&w=1024&h=538&imgurl=www.ameyo.com%2Fwp-content%2Fuploads%2F2016%2F11%2FReal-time-Monitoring-Help-Call-Centers-1024x538.jpg&rurl=https%3A%2F%2Fwww.ameyo.com%2Fblog%2F7-immediate-ways-real-time-monitoring-make-call-centers-better%3Famp%3D1&size=73KB&p=real+time+monitoring+system&oid=ef399b984a560c1bd43c355244c1667d&fr2=piv-web&fr=mcafee&tt=7+Immediate+Ways+Real-Time+Monitoring+Make+Call+Centers+Better+%7C+Ameyo&b=0&ni=21&no=26&ts=&tab=organic&sigr=RNKQibSzLJKm&sigb=VbqPq6MDwcMk&sigi=6ybWxNz1EXfg&sigt=6DhbWA0KOuh7&.crumb=sXE2rwSLJll&fr=mcafee&fr2=piv-web&type=E210IN714G0" alt="Real-time Monitoring" class="w-full h-48 object-cover rounded-xl mb-4">
+                        <h3 class="text-xl font-semibold mb-4">Real-time Monitoring</h3>
+                        <p class="text-gray-600">Advanced flood monitoring systems providing instant updates and alerts.</p>
+                    </div>
+                    <div class="feature-card p-8 rounded-2xl">
+                        <img src="https://in.images.search.yahoo.com/images/view;_ylt=Awr1ReKXKyRoLR4mfYq9HAx.;_ylu=c2VjA3NyBHNsawNpbWcEb2lkAzA3NmQwNjgxODRhNzA3OWQ1YTg1YWY5OGU1ZmE0YzgzBGdwb3MDMjQEaXQDYmluZw--?back=https%3A%2F%2Fin.images.search.yahoo.com%2Fsearch%2Fimages%3Fp%3Demergency%2Bflood%26ei%3DUTF-8%26type%3DE210IN714G0%26fr%3Dmcafee%26fr2%3Dp%253As%252Cv%253Ai%252Cm%253Asb-top%26tab%3Dorganic%26ri%3D24&w=616&h=362&imgurl=lcimag.com%2Fwp-content%2Fuploads%2F2016%2F02%2FEmergency-Flood-Service.jpg&rurl=http%3A%2F%2Flcimag.com%2F2016%2F01%2Freasons-to-choose-emergency-flood-service-toronto%2F&size=105KB&p=emergency+flood&oid=076d068184a7079d5a85af98e5fa4c83&fr2=p%3As%2Cv%3Ai%2Cm%3Asb-top&fr=mcafee&tt=Reasons+To+Choose+Emergency+Flood+Service+Toronto+%7C+LCI+Mag&b=0&ni=300&no=24&ts=&tab=organic&sigr=bTMV6Iu6UqE2&sigb=KU2IgBKOIMmC&sigi=HNIqwLeyY1ZG&sigt=yOmLwaBewuAM&.crumb=sXE2rwSLJll&fr=mcafee&fr2=p%3As%2Cv%3Ai%2Cm%3Asb-top&type=E210IN714G0" alt="Emergency Response" class="w-full h-48 object-cover rounded-xl mb-4">
+                        <h3 class="text-xl font-semibold mb-4">Emergency Response</h3>
+                        <p class="text-gray-600">Coordinated emergency response systems for rapid assistance.</p>
+                    </div>
+                    <div class="feature-card p-8 rounded-2xl">
+                        <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80" alt="Community Support" class="w-full h-48 object-cover rounded-xl mb-4">
+                        <h3 class="text-xl font-semibold mb-4">Community Support</h3>
+                        <p class="text-gray-600">Building resilient communities through education and preparedness.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Section -->
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-6xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+                            Why FloodShield?
+                        </h2>
+                        <p class="text-xl text-gray-600 mb-8">
+                            Leveraging cutting-edge technology to provide accurate flood predictions and real-time monitoring.
+                        </p>
+                        <ul class="space-y-4">
+                            <li class="flex items-center">
+                                <span class="text-blue-600 mr-3">✓</span>
+                                <span class="text-gray-600">AI-powered flood prediction</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="text-blue-600 mr-3">✓</span>
+                                <span class="text-gray-600">Real-time water level monitoring</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="text-blue-600 mr-3">✓</span>
+                                <span class="text-gray-600">Automated alert systems</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="bg-white rounded-2xl p-8 shadow-lg">
+                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Technology Visualization" class="rounded-xl w-full h-auto">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="py-20 bg-blue-600 text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-black opacity-20"></div>
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6">
+                    Join Our Mission
+                </h2>
+                <p class="text-xl text-blue-100 mb-8">
+                    Together, we can build a safer, more resilient future for our communities.
+                </p>
+                <div class="flex justify-center space-x-4">
+                    <a href="/volunteer" class="px-8 py-3 bg-white text-blue-600 rounded-full font-semibold hover:bg-blue-50 transition duration-300">
+                        Become a Volunteer
+                    </a>
+                    <a href="/educator" class="px-8 py-3 border-2 border-white text-white rounded-full font-semibold hover:bg-white hover:text-blue-600 transition duration-300">
+                        Learn More
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <%- include("partials/footer.ejs") %>
+
+    <script>
+        // Add intersection observer for scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate__animated', 'animate__fadeInUp');
+                }
+            });
+        });
+
+        document.querySelectorAll('.feature-card').forEach((el) => observer.observe(el));
+    </script>
+</body>
+</html>

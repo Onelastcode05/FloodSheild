@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FloodSheild - Flood Monitoring System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        .hero-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .input-field {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        .testimonial-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+        .quote-icon {
+            color: #3b82f6;
+            font-size: 2rem;
+            opacity: 0.2;
+        }
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" fill="%23ffffff" opacity=".25"/></svg>');
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+    <div class="min-h-screen flex flex-col">
+        <!-- Navigation -->
+        <nav class="bg-white bg-opacity-90 shadow-lg">
+            <div class="container mx-auto px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                        <span class="text-2xl font-bold text-blue-600">FloodSheild</span>
+                    </div>
+                    <div class="hidden md:flex space-x-8">
+                        <a href="#features" class="text-gray-600 hover:text-blue-600 transition">Features</a>
+                        <a href="#testimonials" class="text-gray-600 hover:text-blue-600 transition">Testimonials</a>
+                        <a href="#contact" class="text-gray-600 hover:text-blue-600 transition">Contact</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <div class="flex-grow container mx-auto px-6 py-12">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="hero-section p-8">
+                    <h1 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                        Stay Safe During Floods with FloodSheild
+                    </h1>
+                    <p class="text-white text-lg mb-8">
+                        Your trusted companion for flood safety. Get real-time alerts, emergency contacts, and expert guidance to protect yourself and your loved ones during flood situations.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#features" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition">
+                            Learn More
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Login Form -->
+                <div class="login-container p-8">
+                    <h2 class="text-2xl font-bold text-center mb-8">Login to Dashboard</h2>
+                    <form id="loginForm" action="/login" method="POST" class="space-y-6">
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" id="email" name="email" required
+                                class="input-field w-full px-4 py-3 rounded-lg focus:outline-none"
+                                pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                                title="Please enter a valid email address">
+                            <div id="emailError" class="text-red-500 text-sm mt-1"></div>
+                        </div>
+                        
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                            <input type="password" id="password" name="password" required
+                                class="input-field w-full px-4 py-3 rounded-lg focus:outline-none"
+                                minlength="7"
+                                title="Password must be at least 7 characters long">
+                            <div id="passwordError" class="text-red-500 text-sm mt-1"></div>
+                        </div>
+                        
+                        <button type="submit"
+                            class="btn-primary w-full py-3 px-4 rounded-lg text-white font-semibold focus:outline-none">
+                            Login to Dashboard
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div id="features" class="bg-white py-16">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center mb-12">Key Features</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="feature-card p-6">
+                        <div class="text-blue-600 text-4xl mb-4">🌊</div>
+                        <h3 class="text-xl font-semibold mb-3">Real-time Monitoring</h3>
+                        <p class="text-gray-600">Get instant updates on flood conditions across different river basins.</p>
+                    </div>
+                    <div class="feature-card p-6">
+                        <div class="text-blue-600 text-4xl mb-4">📊</div>
+                        <h3 class="text-xl font-semibold mb-3">Advanced Forecasting</h3>
+                        <p class="text-gray-600">Access 24-hour and 7-day flood forecasts with detailed analysis.</p>
+                    </div>
+                    <div class="feature-card p-6">
+                        <div class="text-blue-600 text-4xl mb-4">📱</div>
+                        <h3 class="text-xl font-semibold mb-3">Historical Data</h3>
+                        <p class="text-gray-600">View past flood data and patterns to better understand risks.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testimonials Section -->
+        <div id="testimonials" class="bg-gray-50 py-16">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center mb-12">What Our Users Say</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="testimonial-card p-6">
+                        <div class="quote-icon mb-4">"</div>
+                        <p class="text-gray-600 mb-4">"FloodSheild helped us evacuate safely during the last flood. The real-time alerts were crucial for our safety."</p>
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                                <span class="text-blue-600 font-bold">RK</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Rajesh Kumar</h4>
+                                <p class="text-gray-500 text-sm">Farmer, Bihar</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card p-6">
+                        <div class="quote-icon mb-4">"</div>
+                        <p class="text-gray-600 mb-4">"The forecasting feature is incredibly accurate. It helped our community prepare well in advance for the monsoon season."</p>
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                                <span class="text-blue-600 font-bold">SP</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Sarita Patel</h4>
+                                <p class="text-gray-500 text-sm">Community Leader, Assam</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card p-6">
+                        <div class="quote-icon mb-4">"</div>
+                        <p class="text-gray-600 mb-4">"As a disaster management officer, FloodSheild has become an essential tool in our preparedness and response strategy."</p>
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                                <span class="text-blue-600 font-bold">AM</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Amit Mishra</h4>
+                                <p class="text-gray-500 text-sm">Disaster Management Officer</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-gray-900 text-white py-8">
+            <div class="container mx-auto px-6">
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">FloodSheild</h3>
+                        <p class="text-gray-400">Advanced flood monitoring and alert system for better disaster preparedness.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#features" class="text-gray-400 hover:text-white transition">Features</a></li>
+                            <li><a href="#testimonials" class="text-gray-400 hover:text-white transition">Testimonials</a></li>
+                            <li><a href="#contact" class="text-gray-400 hover:text-white transition">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">Emergency Contacts</h3>
+                        <ul class="space-y-2 text-gray-400">
+                            <li>NDRF: 1078</li>
+                            <li>Emergency: 112</li>
+                            <li>Flood Control: 1800-180-1551</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                    <p>&copy; 2024 FloodSheild. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const emailError = document.getElementById('emailError');
+            const passwordError = document.getElementById('passwordError');
+            
+            // Reset error messages
+            emailError.textContent = '';
+            passwordError.textContent = '';
+            
+            // Email validation
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(email)) {
+                emailError.textContent = 'Please enter a valid email address';
+                e.preventDefault();
+                return;
+            }
+            
+            // Password validation
+            if (password.length < 7) {
+                passwordError.textContent = 'Password must be at least 7 characters long';
+                e.preventDefault();
+                return;
+            }
+            
+            // If validation passes, let the form submit normally
+        });
+    </script>
+</body>
+</html> 

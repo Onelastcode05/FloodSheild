@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FloodSheild - Emergency Checklist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .checklist-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .checklist-section:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        .checklist-item {
+            display: flex;
+            align-items: start;
+            gap: 12px;
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+        .emergency-card {
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            border-left: 4px solid #dc2626;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <%- include('partials/header') %>
+    
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-3xl font-bold text-gray-800 mb-8">Flood Emergency Checklist</h1>
+            
+            <!-- Pre-Flood Checklist -->
+            <div class="checklist-section mb-8">
+                <h2 class="text-2xl font-semibold text-blue-600 p-4 border-b border-gray-200">Before Flood</h2>
+                <div class="p-4">
+                    <div class="checklist-item">
+                        <input type="checkbox" class="w-5 h-5 mt-1">
+                        <div>
+                            <h3 class="font-medium">Emergency Kit Preparation</h3>
+                            <p class="text-gray-600 text-sm">Prepare an emergency kit with essential items</p>
+                            <ul class="list-disc list-inside text-sm text-gray-600 ml-4 mt-1">
+                                <li>First aid kit</li>
+                                <li>Non-perishable food (3-day supply)</li>
+                                <li>Bottled water (1 gallon per person per day)</li>
+                                <li>Flashlight with extra batteries</li>
+                                <li>Portable phone charger</li>
+                                <li>Important documents in waterproof container</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" class="w-5 h-5 mt-1">
+                        <div>
+                            <h3 class="font-medium">Home Preparation</h3>
+                            <p class="text-gray-600 text-sm">Secure your property</p>
+                            <ul class="list-disc list-inside text-sm text-gray-600 ml-4 mt-1">
+                                <li>Clear gutters and drains</li>
+                                <li>Move valuables to higher ground</li>
+                                <li>Install flood barriers if available</li>
+                                <li>Check sump pump operation</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" class="w-5 h-5 mt-1">
+                        <div>
+                            <h3 class="font-medium">Evacuation Plan</h3>
+                            <p class="text-gray-600 text-sm">Prepare for possible evacuation</p>
+                            <ul class="list-disc list-inside text-sm text-gray-600 ml-4 mt-1">
+                                <li>Identify evacuation routes</li>
+                                <li>Plan meeting points for family members</li>
+                                <li>Keep vehicle fueled</li>
+                                <li>Know location of nearest shelters</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- During Flood Checklist -->
+            <div class="checklist-section mb-8">
+                <h2 class="text-2xl font-semibold text-red-600 p-4 border-b border-gray-200">During Flood</h2>
+                <div class="p-4">
+                    <div class="checklist-item">
+                        <input type="checkbox" class="w-5 h-5 mt-1">
+                        <div>
+                            <h3 class="font-medium">Safety Measures</h3>
+                            <p class="text-gray-600 text-sm">Stay safe during the flood</p>
+                            <ul class="list-disc list-inside text-sm text-gray-600 ml-4 mt-1">
+                                <li>Move to higher ground immediately</li>
+                                <li>Do not walk through moving water</li>
+                                <li>Do not drive through flooded areas</li>
+                                <li>Stay away from electrical equipment</li>
+                                <li>Listen to emergency broadcasts</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" class="w-5 h-5 mt-1">
+                        <div>
+                            <h3 class="font-medium">Communication</h3>
+                            <p class="text-gray-600 text-sm">Stay connected with family and authorities</p>
+                            <ul class="list-disc list-inside text-sm text-gray-600 ml-4 mt-1">
+                                <li>Keep phone charged</li>
+                                <li>Use text messages instead of calls</li>
+                                <li>Update family about your location</li>
+                                <li>Follow official social media updates</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post-Flood Checklist -->
+            <div class="checklist-section mb-8">
+                <h2 class="text-2xl font-semibold text-green-600 p-4 border-b border-gray-200">After Flood</h2>
+                <div class="p-4">
+                    <div class="checklist-item">
+                        <input type="checkbox" class="w-5 h-5 mt-1">
+                        <div>
+                            <h3 class="font-medium">Returning Home</h3>
+                            <p class="text-gray-600 text-sm">Safety measures when returning home</p>
+                            <ul class="list-disc list-inside text-sm text-gray-600 ml-4 mt-1">
+                                <li>Wait for official clearance to return</li>
+                                <li>Check for structural damage</li>
+                                <li>Look for gas leaks</li>
+                                <li>Check electrical system</li>
+                                <li>Document damage for insurance</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" class="w-5 h-5 mt-1">
+                        <div>
+                            <h3 class="font-medium">Cleanup</h3>
+                            <p class="text-gray-600 text-sm">Safe cleanup procedures</p>
+                            <ul class="list-disc list-inside text-sm text-gray-600 ml-4 mt-1">
+                                <li>Wear protective gear</li>
+                                <li>Remove wet materials</li>
+                                <li>Clean and disinfect surfaces</li>
+                                <li>Dry out the property</li>
+                                <li>Check for mold</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Contacts -->
+            <div class="emergency-card p-6 rounded-lg mb-8">
+                <h2 class="text-2xl font-semibold text-red-600 mb-4">Emergency Contacts</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <h3 class="font-medium text-gray-800 mb-2">National Emergency Numbers</h3>
+                        <ul class="space-y-2">
+                            <li class="flex items-center">
+                                <span class="font-semibold text-red-600 w-32">NDRF:</span>
+                                <span>1078</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="font-semibold text-red-600 w-32">Emergency:</span>
+                                <span>112</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="font-semibold text-red-600 w-32">Flood Control:</span>
+                                <span>1800-180-1551</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <h3 class="font-medium text-gray-800 mb-2">Local Authorities</h3>
+                        <ul class="space-y-2">
+                            <li class="flex items-center">
+                                <span class="font-semibold text-red-600 w-32">Police:</span>
+                                <span>100</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="font-semibold text-red-600 w-32">Fire:</span>
+                                <span>101</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="font-semibold text-red-600 w-32">Ambulance:</span>
+                                <span>102</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+</body>
+</html>
